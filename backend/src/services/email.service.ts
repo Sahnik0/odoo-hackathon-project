@@ -11,7 +11,11 @@ function getTransporter(): Transporter {
       host: env.SMTP_HOST,
       port: env.SMTP_PORT,
       secure: env.SMTP_SECURE,
-      // maildev accepts anonymous; real SMTP would add auth from env here.
+      // maildev (dev default) accepts anonymous connections; a real provider
+      // (Gmail SMTP, etc.) needs SMTP_USER/SMTP_PASS set in .env.
+      ...(env.SMTP_USER && env.SMTP_PASS
+        ? { auth: { user: env.SMTP_USER, pass: env.SMTP_PASS } }
+        : {}),
     });
   }
   return transporter;

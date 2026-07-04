@@ -27,6 +27,10 @@ const schema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((v) => v === 'true'),
+  // Optional — maildev (dev default) accepts anonymous connections. Set both
+  // to authenticate against a real provider (e.g. Gmail SMTP + an app password).
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().default('HRMS <no-reply@hrms.local>'),
 
   APP_WEB_URL: z.string().url().default('http://localhost:3000'),
