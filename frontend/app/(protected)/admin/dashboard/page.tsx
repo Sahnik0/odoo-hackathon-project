@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { Users, Clock, CalendarCheck, IndianRupee } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
+import { RevealGroup, RevealItem } from '@/components/ui/reveal';
 
 const CARDS = [
   {
@@ -53,22 +54,23 @@ export default function AdminDashboardPage() {
         <h1 className="font-serif text-[40px] font-normal text-off-black">Admin dashboard</h1>
         <p className="mt-2 text-[16px] text-graphite">{user?.email}</p>
       </div>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <RevealGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {CARDS.map((c) => (
-          <Link
-            key={c.href}
-            href={c.href}
-            className="relative overflow-hidden rounded-[40px] border border-ash p-10 transition-colors hover:border-off-black"
-          >
-            <div className={`absolute inset-0 bg-gradient-to-br ${c.tone} to-transparent opacity-60 blur-2xl`} />
-            <div className="relative">
-              <c.icon size={20} className="text-off-black" />
-              <h3 className="mt-4 font-serif text-[24px] font-normal text-off-black">{c.title}</h3>
-              <p className="mt-2 text-[16px] text-graphite">{c.body}</p>
-            </div>
-          </Link>
+          <RevealItem key={c.href}>
+            <Link
+              href={c.href}
+              className="group relative block overflow-hidden rounded-[40px] border border-ash p-10 transition-all duration-300 hover:-translate-y-1 hover:border-off-black hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)]"
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${c.tone} to-transparent opacity-60 blur-2xl`} />
+              <div className="relative">
+                <c.icon size={20} className="text-off-black transition-transform duration-300 group-hover:scale-110" />
+                <h3 className="mt-4 font-serif text-[24px] font-normal text-off-black">{c.title}</h3>
+                <p className="mt-2 text-[16px] text-graphite">{c.body}</p>
+              </div>
+            </Link>
+          </RevealItem>
         ))}
-      </div>
+      </RevealGroup>
     </div>
   );
 }

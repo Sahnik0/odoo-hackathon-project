@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import {
   Users,
   Clock,
@@ -20,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import { PipelineDiagram } from '@/components/pipeline-diagram';
 import { FaqAccordion } from '@/components/ui/faq-accordion';
+import { RevealGroup, RevealItem } from '@/components/ui/reveal';
 
 const HOW_IT_WORKS = [
   {
@@ -152,7 +154,12 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <section className="mx-auto flex max-w-[900px] flex-col items-center gap-8 px-6 pb-4 pt-16 text-center">
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="mx-auto flex max-w-[900px] flex-col items-center gap-8 px-6 pb-4 pt-16 text-center"
+      >
         <h1 className="font-serif text-[48px] font-normal leading-[1.15] text-off-black sm:text-[80px]">
           Every workday,
           <br />
@@ -170,25 +177,34 @@ export default function LandingPage() {
             <Link href="/login">I already have an account</Link>
           </Button>
         </div>
-      </section>
+      </motion.section>
 
       <PipelineDiagram />
 
       <section id="how-it-works" className="mx-auto max-w-[1432px] px-6 py-24">
         <h2 className="font-serif text-[48px] font-normal text-off-black">How HRMS works</h2>
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <RevealGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {HOW_IT_WORKS.map((f) => (
-            <div key={f.title} className="rounded-[40px] border border-ash p-10">
+            <RevealItem
+              key={f.title}
+              className="rounded-[40px] border border-ash p-10 transition-all duration-300 hover:-translate-y-1 hover:border-off-black hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)]"
+            >
               <f.icon size={20} className="text-off-black" />
               <h3 className="mt-4 font-serif text-[24px] font-normal text-off-black">{f.title}</h3>
               <p className="mt-2 text-[16px] leading-relaxed text-graphite">{f.body}</p>
-            </div>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </section>
 
       <section className="mx-auto max-w-[1432px] px-6 pb-24">
-        <div className="grid grid-cols-1 gap-0 overflow-hidden rounded-[40px] bg-periwinkle-mist md:grid-cols-2">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.6 }}
+          className="grid grid-cols-1 gap-0 overflow-hidden rounded-[40px] bg-periwinkle-mist md:grid-cols-2"
+        >
           <div className="flex flex-col justify-center gap-4 p-10 md:p-16">
             <h2 className="font-serif text-[40px] font-normal leading-tight text-off-black">
               Everything in one dashboard
@@ -201,38 +217,41 @@ export default function LandingPage() {
               <Link href="/register">Explore the dashboard ▸</Link>
             </Button>
           </div>
-          <div className="relative flex flex-col items-start gap-3 p-10 md:p-16">
+          <RevealGroup className="relative flex flex-col items-start gap-3 p-10 md:p-16">
             {[
               'Priya Sharma — checked in at 9:12 AM',
               'Leave request from Arjun — pending review',
               'Payroll generated for Engineering — 42 employees',
               'Document uploaded — awaiting approval',
             ].map((line) => (
-              <div
+              <RevealItem
                 key={line}
                 className="w-full rounded-2xl border border-ash/60 bg-parchment/80 px-4 py-3 text-[13px] text-off-black"
               >
                 {line}
-              </div>
+              </RevealItem>
             ))}
-          </div>
-        </div>
+          </RevealGroup>
+        </motion.div>
       </section>
 
       <section id="why-us" className="mx-auto max-w-[1432px] px-6 pb-24">
         <h2 className="font-serif text-[48px] font-normal text-off-black">Why teams choose this HRMS</h2>
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <RevealGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
           {WHY_CHOOSE.map((f) => (
-            <div key={f.title} className={`relative overflow-hidden rounded-[40px] border border-ash p-10`}>
+            <RevealItem
+              key={f.title}
+              className="relative overflow-hidden rounded-[40px] border border-ash p-10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)]"
+            >
               <div className={`absolute inset-0 bg-gradient-to-br ${f.tone} opacity-60 blur-2xl`} />
               <div className="relative">
                 <f.icon size={20} className="text-off-black" />
                 <h3 className="mt-4 font-serif text-[24px] font-normal text-off-black">{f.title}</h3>
                 <p className="mt-2 max-w-[420px] text-[16px] leading-relaxed text-graphite">{f.body}</p>
               </div>
-            </div>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </section>
 
       <section id="faq" className="mx-auto max-w-[900px] px-6 pb-24">
@@ -241,8 +260,18 @@ export default function LandingPage() {
       </section>
 
       <section className="mx-auto max-w-[1432px] px-6 pb-24">
-        <div className="relative overflow-hidden rounded-[40px] border border-ash px-6 py-20 text-center">
-          <div className="absolute inset-0 bg-gradient-to-t from-gold/40 via-coral/10 to-transparent" />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.6 }}
+          className="relative overflow-hidden rounded-[40px] border border-ash px-6 py-20 text-center"
+        >
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-t from-gold/40 via-coral/10 to-transparent"
+            animate={{ opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+          />
           <div className="relative flex flex-col items-center gap-6">
             <h2 className="max-w-[560px] font-serif text-[40px] font-normal leading-tight text-off-black">
               Every workday, perfectly aligned.
@@ -259,7 +288,7 @@ export default function LandingPage() {
               </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       <footer className="border-t border-ash">
