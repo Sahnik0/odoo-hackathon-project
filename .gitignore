@@ -19,6 +19,10 @@ out/
 # Prisma
 prisma/*.db
 prisma/*.db-journal
+# Prisma auto-install artifact at repo root (schema lives at prisma/, consumed by
+# backend/ — the real client generates into backend/node_modules). Never imported.
+/package.json
+/package-lock.json
 
 # Uploads (runtime file storage — keep the dir, ignore contents)
 backend/src/uploads/*

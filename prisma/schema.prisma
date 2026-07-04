@@ -1,7 +1,9 @@
-// HRMS Prisma schema.
-// Phase 0: datasource + generator only — enables `prisma generate` in the build.
-// Phase 1 fills in the full data model (Section 5). Do not add models here until
-// Phase 1; treat schema changes after Phase 1 as expensive (Section 5).
+// HRMS Prisma schema — full data model (Section 5).
+// Rules applied to every model: UUID PK, createdAt/updatedAt. Soft delete
+// (deletedAt) on User, EmployeeProfile, LeaveRequest, Document. FKs + list-filter
+// columns indexed. Money stored as integer PAISE (Int; ceiling ₹21,474,836 per
+// field — ample for monthly figures; see CONTEXT.md).
+// Treat changes after Phase 1 as expensive.
 
 generator client {
   provider = "prisma-client-js"
@@ -10,4 +12,320 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// ---------- Enums (Section 5) ----------
+
+enum Role {
+  EMPLOYEE
+  ADMIN
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  HALF_DAY
+  LEAVE
+}
+
+enum LeaveType {
+  PAID
+  SICK
+  UNPAID
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum EmploymentStatus {
+  ACTIVE
+  ON_LEAVE
+  TERMINATED
+}
+
+// Added beyond Section 5's list — required for the module business rules to work
+// (documented in CONTEXT.md):
+enum DocumentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NotificationType {
+  LEAVE_SUBMITTED
+  LEAVE_APPROVED
+  LEAVE_REJECTED
+  PAYROLL_GENERATED
+  EMAIL_VERIFIED
+  DOCUMENT_UPLOADED
+  DOCUMENT_REJECTED
+}
+
+// ---------- Models ----------
+
+// Auth core. Email/password login; email verification + password reset token
+// hashes live here (single-use, cleared after use) rather than a separate table.
+model User {
+  id           String @id @default(uuid())
+  email        String @unique
+  passwordHash String
+  role         Role   @default(EMPLOYEE)
+
+  emailVerified   Boolean   @default(false)
+  emailVerifiedAt DateTime?
+
+  // Email verification token (24h, single-use, 60s resend cooldown — Section 2).
+  emailVerifyTokenHash    String?
+  emailVerifyTokenExpires DateTime?
+  emailVerifyLastSentAt   DateTime?
+
+  // Password reset token (1h, single-use — Section 2).
+  passwordResetTokenHash    String?
+  passwordResetTokenExpires DateTime?
+
+  profile       EmployeeProfile?
+  refreshTokens RefreshToken[]
+  notifications Notification[]
+
+  // Actor back-relations (admin actions on other employees' records).
+  reviewedLeaves    LeaveRequest[] @relation("LeaveReviewer")
+  generatedPayrolls Payroll[]      @relation("PayrollGenerator")
+  uploadedDocuments Document[]     @relation("DocumentUploader")
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([role])
+}
+
+// One profile per user. loginId is the OIxxYYYYNNNN identifier (Section 2).
+model EmployeeProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  loginId   String @unique // e.g. OIJODO20220001
+  firstName String
+  lastName  String
+
+  // Employee-editable fields (Section 8).
+  phone          String?
+  address        String?
+  profilePicture String? // stored path/URL; uploads also tracked as Document rows
+
+  // Admin-only fields.
+  department       String?
+  designation      String?
+  dateOfJoining    DateTime
+  employmentStatus EmploymentStatus @default(ACTIVE)
+
+  attendances     Attendance[]
+  leaveRequests   LeaveRequest[]
+  leaveBalances   LeaveBalance[]
+  salaryStructure SalaryStructure?
+  payrolls        Payroll[]
+  documents       Document[]
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([department])
+  @@index([employmentStatus])
+}
+
+// One row per employee per calendar day (unique). workedMinutes computed
+// server-side from checkIn/checkOut (Section 2). Timestamps stored UTC.
+model Attendance {
+  id                String          @id @default(uuid())
+  employeeProfileId String
+  employeeProfile   EmployeeProfile @relation(fields: [employeeProfileId], references: [id])
+
+  date          DateTime         @db.Date // calendar day
+  checkIn       DateTime?
+  checkOut      DateTime?
+  workedMinutes Int? // server-computed (checkout - checkin)
+  status        AttendanceStatus @default(PRESENT)
+  note          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeProfileId, date])
+  @@index([date])
+  @@index([status])
+}
+
+// Duration = inclusive calendar days (Section 2 simplification). reason is
+// free-text (sanitized on write). Reviewed by an Admin (User).
+model LeaveRequest {
+  id                String          @id @default(uuid())
+  employeeProfileId String
+  employeeProfile   EmployeeProfile @relation(fields: [employeeProfileId], references: [id])
+
+  type      LeaveType
+  status    LeaveStatus @default(PENDING)
+  startDate DateTime    @db.Date
+  endDate   DateTime    @db.Date
+  days      Int // inclusive calendar days
+  reason    String
+
+  reviewedById  String?
+  reviewedBy    User?     @relation("LeaveReviewer", fields: [reviewedById], references: [id])
+  reviewRemarks String?
+  reviewedAt    DateTime?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([employeeProfileId])
+  @@index([status])
+}
+
+// Remaining days per employee / type / year (Section 2). allocated NULL = unlimited
+// (UNPAID). remaining = allocated - used, derived in app.
+model LeaveBalance {
+  id                String          @id @default(uuid())
+  employeeProfileId String
+  employeeProfile   EmployeeProfile @relation(fields: [employeeProfileId], references: [id])
+
+  type      LeaveType
+  year      Int
+  allocated Int? // NULL = unlimited
+  used      Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeProfileId, type, year])
+  @@index([employeeProfileId])
+}
+
+// Current salary structure per employee (one-to-one). Amounts in paise.
+model SalaryStructure {
+  id                String          @id @default(uuid())
+  employeeProfileId String          @unique
+  employeeProfile   EmployeeProfile @relation(fields: [employeeProfileId], references: [id])
+
+  basic         Int // paise
+  hra           Int // paise
+  allowances    Int      @default(0) // paise
+  deductions    Int      @default(0) // paise
+  currency      String   @default("INR")
+  effectiveFrom DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Generated payroll entry per employee per month (unique). Snapshot of amounts
+// in paise at generation time. Generated by an Admin (User).
+model Payroll {
+  id                String          @id @default(uuid())
+  employeeProfileId String
+  employeeProfile   EmployeeProfile @relation(fields: [employeeProfileId], references: [id])
+
+  month Int // 1-12
+  year  Int
+
+  basic      Int // paise (snapshot)
+  hra        Int
+  allowances Int
+  deductions Int
+  gross      Int
+  net        Int
+  currency   String @default("INR")
+
+  generatedById String
+  generatedBy   User     @relation("PayrollGenerator", fields: [generatedById], references: [id])
+  generatedAt   DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeProfileId, month, year])
+  @@index([employeeProfileId])
+}
+
+// Uploaded file linked to an employee. status supports the upload/reject
+// notification flow (Section 2). Path per Section 2 convention.
+model Document {
+  id                String          @id @default(uuid())
+  employeeProfileId String
+  employeeProfile   EmployeeProfile @relation(fields: [employeeProfileId], references: [id])
+
+  category    String // e.g. ID_PROOF, CONTRACT, PROFILE_PICTURE
+  fileName    String // original filename
+  storagePath String // uploads/{employeeId}/{category}/{uuid}-{originalFilename}
+  mimeType    String
+  sizeBytes   Int
+  status      DocumentStatus @default(PENDING)
+
+  uploadedById String
+  uploadedBy   User   @relation("DocumentUploader", fields: [uploadedById], references: [id])
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([employeeProfileId])
+  @@index([status])
+}
+
+// In-app notification for a recipient User. Triggers per Section 2.
+model Notification {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  type    NotificationType
+  message String
+  link    String?
+  read    Boolean          @default(false)
+  readAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, read])
+}
+
+// Opaque refresh token, stored HASHED (Section 2). familyId groups a rotation
+// chain; reuse of a rotated token revokes the whole family (theft detection).
+model RefreshToken {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  tokenHash           String    @unique
+  familyId            String
+  replacedByTokenHash String?
+  rememberMe          Boolean   @default(false)
+  expiresAt           DateTime
+  revokedAt           DateTime?
+
+  userAgent String?
+  ip        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([familyId])
+}
+
+// Concurrency-safe per-year serial for login-ID generation (see CONTEXT.md).
+// Not in Section 5's list — internal support table, incremented in a txn.
+model LoginIdCounter {
+  year Int @id
+  seq  Int @default(0)
+
+  updatedAt DateTime @updatedAt
 }

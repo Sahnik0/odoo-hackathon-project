@@ -1,44 +1,50 @@
 # TASK.md — Current Phase Checklist
 
-## Phase 1 — Prisma schema, migrations, seed
+## Phase 2 — Auth module + tests
 
-**DoD:** `prisma migrate dev` runs clean; seed produces 1 admin + 5+ employees with
-realistic data across ALL entities.
+**DoD:** All 7 auth endpoints work end-to-end incl. real email delivery to maildev;
+Supertest suite green.
 
-### Schema (`prisma/schema.prisma`) — write the full model before any controller
-- [ ] Enums: `Role`, `AttendanceStatus`, `LeaveType`, `LeaveStatus`, `EmploymentStatus`
-- [ ] `User` (auth core; email, hashed password, role, verified flag, soft delete)
-- [ ] `EmployeeProfile` (login ID `OIxxYYYYNNNN`, dept, employment status, phone,
-      address, profilePicture; soft delete)
-- [ ] `Attendance` (checkin/checkout UTC, workedHours, status; index `date`)
-- [ ] `LeaveRequest` (type, status, start/end, reason, remarks; index `status`; soft delete)
-- [ ] `LeaveBalance` (per employee / type / year; remaining days)
-- [ ] `SalaryStructure` (components, amounts in integer paise)
-- [ ] `Payroll` (period, generated entry, amounts in paise)
-- [ ] `Document` (category, path, linked to employee; soft delete)
-- [ ] `Notification` (type, message, read flag, target user)
-- [ ] `RefreshToken` (hashed token, family id, expiry, revoked flag)
-- [ ] Every model: UUID PK, `createdAt`, `updatedAt`
-- [ ] Soft delete (`deletedAt`) on User, EmployeeProfile, LeaveRequest, Document
-- [ ] Indexes on FKs + `Attendance.date`, `LeaveRequest.status`, `EmployeeProfile.department`
+### The 7 endpoints (Section 8 flow)
+- [ ] `POST /auth/register` → creates EMPLOYEE user + profile + login ID + leave
+      balances; sends verification email; rate-limit 3/min
+- [ ] `POST /auth/verify-email` (token) → marks verified, fires EMAIL_VERIFIED
+      notification; single-use, 24h expiry
+- [ ] `POST /auth/resend-verification` → 60s cooldown
+- [ ] `POST /auth/login` → blocked until verified; issues access JWT (15m) + refresh
+      cookie (httpOnly/secure/strict); rate-limit 5/min; supports Remember Me (30d)
+- [ ] `POST /auth/refresh` → rotation (new refresh, invalidate old); reuse of rotated
+      token revokes the whole family
+- [ ] `POST /auth/logout` → revokes current refresh token
+- [ ] `POST /auth/forgot-password` (rate 3/15min) + `POST /auth/reset-password`
+      (1h token, single-use, invalidates all refresh tokens)
 
-### Migration
-- [ ] `prisma migrate dev --name init` runs clean against compose Postgres
-- [ ] Prisma client generates
+### Building blocks
+- [ ] `services/auth.service.ts` — register/verify/login/refresh/logout/reset logic
+- [ ] `services/token.service.ts` — access JWT sign/verify, opaque refresh gen+hash,
+      rotation + family revoke
+- [ ] `services/email.service.ts` — Nodemailer → SMTP (maildev); verify + reset templates
+- [ ] `lib/password.ts` — bcrypt hash/compare (cost 12)
+- [ ] `lib/crypto.ts` — opaque token gen + hash (sha256) for refresh/verify/reset
+- [ ] `validators/auth.validators.ts` — Zod schemas (mirror to frontend later)
+- [ ] `middleware/authenticate.ts` — verify access token, attach user
+- [ ] `middleware/rateLimit.ts` — per-route limiters (Section 2 limits)
+- [ ] `middleware/validate.ts` — Zod body/query validation → 422 via error handler
+- [ ] `controllers/auth.controller.ts` + `routes/auth.routes.ts`
+- [ ] Wire routes + cookie config into `app.ts`
 
-### Seed (`prisma/seed.ts`)
-- [ ] 1 bootstrap Admin (documented credentials)
-- [ ] 5+ Employees with generated login IDs, profiles, employment statuses
-- [ ] Realistic cross-entity data: attendance rows, leave requests + balances,
-      salary structures + payroll, a document, notifications
-- [ ] Idempotent-ish (safe re-run: upsert or clean-then-seed)
-- [ ] Passwords hashed (bcrypt cost 12)
+### Security (Section 6)
+- [ ] Refresh token: opaque, hashed at rest, httpOnly/secure/sameSite=strict cookie
+- [ ] Access token: 15m, Bearer
+- [ ] Rotation + theft detection (family revoke on reuse)
+- [ ] Input sanitization on mutating routes
+- [ ] Generic messages on login/forgot (no user-enumeration leak)
 
-### Decisions to log in CONTEXT.md
-- [ ] Login-ID serial generation strategy (per-year counter source of truth)
-- [ ] Paise storage confirmed on all money fields
-- [ ] RefreshToken family/rotation columns
+### Tests (Supertest — Section 10: happy + 1 auth-fail + 1 validation-fail min per endpoint)
+- [ ] register / verify / login / refresh / logout / forgot / reset suites
+- [ ] Real email lands in maildev (assert via maildev REST API on :1080)
+- [ ] Test DB strategy (transaction/cleanup) documented
 
 ### Verify + close
-- [ ] `prisma migrate dev` clean, `npm run seed` populates all entities
-- [ ] Update `PROGRESS.md`, append `CONTEXT.md`, rewrite `TASK.md` for Phase 2, commit
+- [ ] Full auth flow green end-to-end against maildev
+- [ ] Update PROGRESS.md, append CONTEXT.md, rewrite TASK.md for Phase 3, commit

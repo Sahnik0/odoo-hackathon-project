@@ -12,14 +12,14 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "seed": "ts-node prisma/seed.ts",
+    "seed": "NODE_PATH=node_modules ts-node --transpile-only -O '{\"module\":\"CommonJS\",\"moduleResolution\":\"Node\"}' ../prisma/seed.ts",
     "lint": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "jest --runInBand"
   },
   "prisma": {
     "schema": "../prisma/schema.prisma",
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node --transpile-only ../prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

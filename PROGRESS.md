@@ -43,6 +43,34 @@
 
 ---
 
-## Phase 1 — Prisma schema, migrations, seed · ⬜ next
+## Phase 1 — Prisma schema, migrations, seed · ✅ COMPLETE
 
-## Phases 2–11 · ⬜ not started
+### DoD — met
+- ✅ `prisma migrate dev --name init` runs clean against compose Postgres
+- ✅ Seed produces 1 admin + **6** employees with realistic data across ALL entities
+- ✅ Seed idempotent (clean-then-seed; re-run holds at 7 users)
+
+### Built
+- ✅ Full `schema.prisma`: 10 spec entities + `LoginIdCounter` support table; 7 enums
+     (5 spec + `DocumentStatus`, `NotificationType`); UUID PKs, timestamps, soft-delete
+     on User/EmployeeProfile/LeaveRequest/Document; indexes on FKs + `Attendance.date`,
+     `LeaveRequest.status`, `EmployeeProfile.department` (+ more)
+- ✅ Migration `20260704051645_init` applied + committed
+- ✅ `backend/src/lib/loginId.ts` — shared, txn-safe login-ID generator (reused Phase 2)
+- ✅ `prisma/seed.ts` — comprehensive, idempotent; login IDs verified
+     (`OIPRSH20220001`, per-year serials correct)
+- ✅ Backend typecheck clean, jest 2/2 green
+
+### Row counts after seed
+users 7 · profiles 7 · attendance 15 · leaveRequests 3 · leaveBalances 21 ·
+salaryStructures 7 · payrolls 5 · documents 2 · notifications 4
+
+### Assumptions/decisions logged in CONTEXT.md
+- ⚠️ Money = Int paise (ceiling ₹21.4M/field; BigInt if ever exceeded)
+- ⚠️ `LoginIdCounter` table added (concurrency-safe serial) — not in Section 5 list
+- ⚠️ `DocumentStatus` + `NotificationType` enums added (needed for module triggers)
+- ⚠️ Verify/reset tokens stored hashed on `User` (no separate table)
+
+## Phase 2 — Auth module + tests · ⬜ next
+
+## Phases 3–11 · ⬜ not started
