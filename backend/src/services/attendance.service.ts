@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma';
 import { env } from '../config/env';
 import { ApiError } from '../lib/apiError';
 import { orgDateOnly, viewRange, type AttendanceView } from '../lib/time';
+import { resolveProfileId } from '../lib/profile';
 import { buildOrderBy } from '../validators/common';
 import { buildPageMeta } from '../lib/apiResponse';
 import { sanitizeText } from '../lib/sanitize';
@@ -14,14 +15,7 @@ const profileInclude = {
   },
 } as const;
 
-async function myProfileId(userId: string): Promise<string> {
-  const p = await prisma.employeeProfile.findFirst({
-    where: { userId, deletedAt: null },
-    select: { id: true },
-  });
-  if (!p) throw ApiError.notFound('Profile not found');
-  return p.id;
-}
+const myProfileId = resolveProfileId;
 
 const dayKey = (employeeProfileId: string, date: Date) => ({
   employeeProfileId_date: { employeeProfileId, date },

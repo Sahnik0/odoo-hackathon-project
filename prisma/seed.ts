@@ -7,6 +7,11 @@
 //   Admin    → admin@hrms.local    / Admin@123
 //   Employee → priya@hrms.local    / Employee@123  (all employees share this pw)
 
+// Loaded before the Prisma import below: `ts-node` (unlike the `prisma` CLI) does
+// not auto-read `.env` for a plain script invocation, so DATABASE_URL would be
+// undefined on a fresh clone without this. cwd is `backend/` (see npm script),
+// so this resolves `backend/.env`.
+import 'dotenv/config';
 import { PrismaClient, type LeaveType } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { nextLoginId } from '../backend/src/lib/loginId';
