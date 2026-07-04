@@ -105,6 +105,31 @@ forgot/login.
 - ⚠️ `resend-verification` 429s on cooldown for known-unverified users (minor enum leak)
 - ⚠️ Refresh cookie `secure` only in production (dev is http://localhost)
 
-## Phase 3 — Employee profile + RBAC · ⬜ next
+## Phase 3 — Employee profile + RBAC · ✅ COMPLETE
 
-## Phases 4–11 · ⬜ not started
+### DoD — met
+- ✅ Field-level edit restrictions enforced **server-side** and tested (not UI-hidden):
+     Employee editing an Admin-only field → 403, change not applied (asserted in DB)
+
+### Endpoints
+`GET /employees` (admin, paginated/search/filter) · `GET /employees/me` ·
+`GET /employees/:id` (ownership) · `POST /employees` (admin) ·
+`PATCH /employees/:id` (field-level RBAC) · `DELETE /employees/:id` (admin, soft)
+
+### Built
+- ✅ `employee.service` (list/getById/getMine/create/update/softDelete) w/ ownership +
+     field-level RBAC + stored-XSS escaping
+- ✅ `employee.validators` (create/update/list schemas + self vs admin field sets)
+- ✅ `validators/common` (pagination + safe orderBy) — reusable across all list endpoints
+- ✅ `lib/sanitize` (HTML escape for free-text)
+- ✅ controller + routes wired; `authenticate` + `authenticatedLimiter` on all
+- ✅ **17 new Supertest tests** (35 total green), typecheck + eslint clean
+
+### Assumptions/decisions logged in CONTEXT.md
+- ⚠️ Admin-created employees: pre-verified + emailed a reset link to set their password
+- ⚠️ Employee sending an Admin-only field → 403 (explicit reject, not silent strip)
+- ⚠️ Soft delete revokes refresh tokens + soft-deletes User too
+
+## Phase 4 — Attendance module · ⬜ next
+
+## Phases 5–11 · ⬜ not started

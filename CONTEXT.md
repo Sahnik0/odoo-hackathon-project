@@ -140,3 +140,41 @@ healthchecks to `127.0.0.1`.
 
 **Async errors.** Express 4 doesn't catch rejected async handlers → all controllers
 wrapped in `asyncHandler` so rejections reach the centralized error handler.
+
+---
+
+## Phase 3 — Employee profile + RBAC
+
+**Field-level RBAC (Section 8) enforced in the service, not the route.** A single
+`updateEmployeeSchema` (all-optional) validates shape; `employee.service.update` then
+splits fields by role: Employee may set only `phone`/`address`/`profilePicture`, and
+any Admin-only field (`firstName`, `lastName`, `department`, `designation`,
+`dateOfJoining`, `employmentStatus`) present in an Employee's request → **403** (not
+silently stripped — explicit, testable, and the DoD demands proof it's blocked
+server-side). Field sets live in `employee.validators` (`SELF_EDITABLE_FIELDS` /
+`ADMIN_ONLY_FIELDS`) so frontend can mirror them.
+
+**Ownership vs role (Section 6).** `assertCanAccess` gates read/update: Admin bypasses,
+Employee restricted to `profile.userId === requester.id`. Route-level `authorize('ADMIN')`
+guards list/create/delete; per-record ownership is service-level for get/update.
+
+**Route ordering.** `GET /employees/me` declared before `GET /employees/:id` so "me"
+isn't captured as an id param.
+
+**Admin-created accounts (decision — Section 14).** `POST /employees` creates a
+pre-verified EMPLOYEE (admin vouches for the address) with an unusable random password,
+then emails a password-**reset** link so the employee sets their own password. Reuses
+the existing reset flow rather than adding an invite mechanism. Logged as the default.
+
+**Soft delete (Section 5).** `DELETE` soft-deletes the profile AND the user
+(`deletedAt`), and revokes active refresh tokens so the account can't authenticate.
+Never hard-deletes. All reads filter `deletedAt: null`.
+
+**Stored-XSS (Section 6).** Free-text (`address`, `phone`) escaped via
+`lib/sanitize.escapeHtml` on write, in addition to Zod. Verified by test
+(`<script>` → `&lt;script&gt;`).
+
+**Shared list querying.** `validators/common.ts` — `paginationSchema` (page/pageSize
+≤100/sort/search) + `buildOrderBy` (allowlisted sort fields, safe fallback). Reused by
+every future list endpoint. `search` on employees spans name/loginId/email
+(case-insensitive). `meta` via `buildPageMeta`.
