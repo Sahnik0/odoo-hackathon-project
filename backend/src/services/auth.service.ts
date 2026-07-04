@@ -65,8 +65,8 @@ export async function register(input: RegisterInput): Promise<{ id: string; emai
             loginId,
             firstName: input.firstName.trim(),
             lastName: input.lastName.trim(),
-            companyName: input.companyName ? input.companyName.trim() : null,
-            phone: input.phone ? input.phone.trim() : null,
+            companyName: input.companyName?.trim() || undefined,
+            phone: input.phone?.trim() || undefined,
             dateOfJoining: now,
             leaveBalances: {
               createMany: {
