@@ -8,7 +8,10 @@ export function DottedMark({ size = 28, className }: { size?: number; className?
 
   for (let i = 0; i < ringDots; i++) {
     const angle = (i / ringDots) * Math.PI * 2;
-    dots.push({ cx: r + Math.cos(angle) * (r - 2), cy: r + Math.sin(angle) * (r - 2), radius: 1.4 });
+    // Round to 6 decimal places to avoid hydration mismatches
+    const cx = Math.round((r + Math.cos(angle) * (r - 2)) * 1e6) / 1e6;
+    const cy = Math.round((r + Math.sin(angle) * (r - 2)) * 1e6) / 1e6;
+    dots.push({ cx, cy, radius: 1.4 });
   }
   // Sparse inner cluster.
   const inner = [

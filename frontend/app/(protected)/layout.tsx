@@ -23,7 +23,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-parchment">
       <AppNav />
-      <main className="mx-auto max-w-[1200px] px-6 py-10">{children}</main>
+      <main className="mx-auto max-w-[var(--page-max-width)] px-6 py-12">{children}</main>
     </div>
   );
 }

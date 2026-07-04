@@ -45,7 +45,7 @@ export function AppNav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-parchment/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-6">
+      <div className="mx-auto flex h-20 max-w-[var(--page-max-width)] items-center justify-between gap-4 px-6">
         <Link href={home} className="shrink-0">
           <Logo />
         </Link>

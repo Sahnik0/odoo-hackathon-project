@@ -132,7 +132,7 @@ export default function LandingPage() {
       )}
 
       <header className="sticky top-0 z-40 border-b border-line/70 bg-parchment/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-6">
+        <div className="mx-auto flex h-20 max-w-[var(--page-max-width)] items-center justify-between gap-4 px-6">
           <Logo />
           <nav className="hidden items-center gap-1 rounded-full border border-line bg-surface/60 p-1 md:flex">
             {[
@@ -191,7 +191,7 @@ export default function LandingPage() {
 
       <PipelineDiagram />
 
-      <section id="how-it-works" className="mx-auto max-w-[1200px] px-6 py-24">
+      <section id="how-it-works" className="mx-auto max-w-[var(--page-max-width)] px-6 py-24">
         <div className="max-w-[560px]">
           <span className="text-[12px] uppercase tracking-[0.06em] text-lake-blue">How it works</span>
           <h2 className="mt-3 font-serif text-[38px] font-normal tracking-[-0.03em] text-off-black sm:text-[44px]">
@@ -216,7 +216,7 @@ export default function LandingPage() {
         </RevealGroup>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-6 pb-24">
+      <section className="mx-auto max-w-[var(--page-max-width)] px-6 pb-24">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -255,7 +255,7 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      <section id="why-us" className="mx-auto max-w-[1200px] px-6 pb-24">
+      <section id="why-us" className="mx-auto max-w-[var(--page-max-width)] px-6 pb-24">
         <div className="max-w-[560px]">
           <span className="text-[12px] uppercase tracking-[0.06em] text-lake-blue">Why us</span>
           <h2 className="mt-3 font-serif text-[38px] font-normal tracking-[-0.03em] text-off-black sm:text-[44px]">
@@ -288,7 +288,7 @@ export default function LandingPage() {
         <FaqAccordion items={FAQ_ITEMS} />
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-6 pb-24">
+      <section className="mx-auto max-w-[var(--page-max-width)] px-6 pb-24">
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -321,7 +321,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="border-t border-ash">
-        <div className="mx-auto grid max-w-[1200px] grid-cols-2 gap-8 px-6 py-16 sm:grid-cols-4">
+        <div className="mx-auto grid max-w-[var(--page-max-width)] grid-cols-2 gap-8 px-6 py-16 sm:grid-cols-4">
           <div className="col-span-2 flex flex-col gap-4 sm:col-span-1">
             <Logo />
             <p className="text-[12px] uppercase tracking-tight text-smoke">Follow us on</p>
@@ -351,7 +351,7 @@ export default function LandingPage() {
             ]}
           />
         </div>
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-8 text-[12px] uppercase text-smoke">
+        <div className="mx-auto flex max-w-[var(--page-max-width)] items-center justify-between px-6 py-8 text-[12px] uppercase text-smoke">
           <span>HRMS © {new Date().getFullYear()}</span>
           <span>Odoo India</span>
         </div>
