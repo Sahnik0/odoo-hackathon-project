@@ -55,36 +55,36 @@ export default function RegisterPage() {
         <CardDescription>Self-registration always creates an Employee account.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit((v) => mutation.mutate(v))}>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit((v) => mutation.mutate(v))}>
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               <Label htmlFor="firstName">First name</Label>
               <Input id="firstName" autoComplete="given-name" {...register('firstName')} />
               <FieldError message={errors.firstName?.message} />
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               <Label htmlFor="lastName">Last name</Label>
               <Input id="lastName" autoComplete="family-name" {...register('lastName')} />
               <FieldError message={errors.lastName?.message} />
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" autoComplete="email" {...register('email')} />
             <FieldError message={errors.email?.message} />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" autoComplete="new-password" {...register('password')} />
             <FieldError message={errors.password?.message} />
           </div>
-          <Button type="submit" variant="primary" disabled={mutation.isPending} className="w-full">
+          <Button type="submit" variant="primary" disabled={mutation.isPending} className="mt-1 w-full">
             {mutation.isPending ? 'Creating account…' : 'Register'}
           </Button>
         </form>
-        <p className="mt-6 text-center text-[14px] text-graphite">
+        <p className="mt-6 text-center text-[13px] text-graphite">
           Already have an account?{' '}
-          <Link href="/login" className="text-off-black underline">
+          <Link href="/login" className="text-off-black underline underline-offset-4 hover:text-lake-blue">
             Log in
           </Link>
         </p>

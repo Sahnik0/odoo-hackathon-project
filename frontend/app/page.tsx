@@ -110,13 +110,13 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen bg-parchment">
       {announcementOpen && (
-        <div className="flex w-full items-center justify-center gap-4 bg-ink px-4 py-2.5 text-center">
-          <p className="text-[14px] text-parchment">
+        <div className="flex w-full items-center justify-center gap-4 bg-off-black px-4 py-2.5 text-center">
+          <p className="text-[13px] text-parchment">
             New: automatic payroll generation and real-time notifications are live.
           </p>
           <Link
             href="/register"
-            className="rounded-full border border-parchment px-3 py-1 text-[12px] uppercase tracking-tight text-parchment"
+            className="rounded-full border border-parchment/40 px-3 py-1 text-[11px] uppercase tracking-tight text-parchment transition-colors hover:bg-parchment hover:text-off-black"
           >
             Get started
           </Link>
@@ -164,22 +164,26 @@ export default function LandingPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="mx-auto flex max-w-[900px] flex-col items-center gap-8 px-6 pb-4 pt-16 text-center"
+        className="bg-radial-accent mx-auto flex max-w-[860px] flex-col items-center gap-7 px-6 pb-6 pt-20 text-center"
       >
-        <h1 className="font-serif text-[48px] font-normal leading-[1.15] text-off-black sm:text-[80px]">
+        <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-1.5 text-[12px] uppercase tracking-tight text-graphite shadow-ambient">
+          <span className="h-1.5 w-1.5 rounded-full bg-mint" />
+          HR, attendance, leave & payroll — unified
+        </span>
+        <h1 className="font-serif text-[46px] font-normal leading-[1.05] tracking-[-0.03em] text-off-black sm:text-[76px]">
           Every workday,
           <br />
           perfectly aligned.
         </h1>
-        <p className="max-w-[560px] text-[20px] leading-relaxed text-graphite">
+        <p className="max-w-[540px] text-[19px] leading-relaxed text-graphite">
           One system for onboarding, attendance, leave and payroll — built so employees and admins always
           know exactly where things stand.
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          <Button asChild variant="default" size="default">
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Button asChild variant="default" size="lg">
             <Link href="/register">Start free ▸</Link>
           </Button>
-          <Button asChild variant="ghost" size="default">
+          <Button asChild variant="ghost" size="lg">
             <Link href="/login">I already have an account</Link>
           </Button>
         </div>
@@ -187,35 +191,44 @@ export default function LandingPage() {
 
       <PipelineDiagram />
 
-      <section id="how-it-works" className="mx-auto max-w-[1432px] px-6 py-24">
-        <h2 className="font-serif text-[48px] font-normal text-off-black">How HRMS works</h2>
-        <RevealGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <section id="how-it-works" className="mx-auto max-w-[1200px] px-6 py-24">
+        <div className="max-w-[560px]">
+          <span className="text-[12px] uppercase tracking-[0.06em] text-lake-blue">How it works</span>
+          <h2 className="mt-3 font-serif text-[38px] font-normal tracking-[-0.03em] text-off-black sm:text-[44px]">
+            Four modules, one source of truth
+          </h2>
+        </div>
+        <RevealGroup className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {HOW_IT_WORKS.map((f) => (
             <RevealItem
               key={f.title}
-              className="rounded-[40px] border border-ash p-10 transition-all duration-300 hover:-translate-y-1 hover:border-off-black hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)]"
+              className="group flex flex-col gap-4 rounded-[24px] border border-line bg-surface p-7 shadow-ambient transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-md"
             >
-              <f.icon size={20} className="text-off-black" />
-              <h3 className="mt-4 font-serif text-[24px] font-normal text-off-black">{f.title}</h3>
-              <p className="mt-2 text-[16px] leading-relaxed text-graphite">{f.body}</p>
+              <span className="flex h-11 w-11 items-center justify-center rounded-[14px] bg-off-black/[0.05] text-off-black transition-colors group-hover:bg-off-black group-hover:text-white">
+                <f.icon size={19} />
+              </span>
+              <div>
+                <h3 className="font-serif text-[21px] tracking-tight text-off-black">{f.title}</h3>
+                <p className="mt-1.5 text-[14px] leading-relaxed text-graphite">{f.body}</p>
+              </div>
             </RevealItem>
           ))}
         </RevealGroup>
       </section>
 
-      <section className="mx-auto max-w-[1432px] px-6 pb-24">
+      <section className="mx-auto max-w-[1200px] px-6 pb-24">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.6 }}
-          className="grid grid-cols-1 gap-0 overflow-hidden rounded-[40px] bg-periwinkle-mist md:grid-cols-2"
+          className="grid grid-cols-1 gap-0 overflow-hidden rounded-[28px] border border-line bg-periwinkle-mist/70 md:grid-cols-2"
         >
-          <div className="flex flex-col justify-center gap-4 p-10 md:p-16">
-            <h2 className="font-serif text-[40px] font-normal leading-tight text-off-black">
+          <div className="flex flex-col justify-center gap-5 p-10 md:p-14">
+            <h2 className="font-serif text-[34px] font-normal leading-tight tracking-[-0.03em] text-off-black sm:text-[40px]">
               Everything in one dashboard
             </h2>
-            <p className="max-w-[420px] text-[16px] leading-relaxed text-graphite">
+            <p className="max-w-[420px] text-[15px] leading-relaxed text-graphite">
               Employees see their profile, attendance and leave balance the moment they log in. Admins get a
               live view across the whole organization — no spreadsheets, no email chains.
             </p>
@@ -223,73 +236,83 @@ export default function LandingPage() {
               <Link href="/register">Explore the dashboard ▸</Link>
             </Button>
           </div>
-          <RevealGroup className="relative flex flex-col items-start gap-3 p-10 md:p-16">
+          <RevealGroup className="relative flex flex-col items-start justify-center gap-3 p-10 md:p-14">
             {[
-              'Priya Sharma — checked in at 9:12 AM',
-              'Leave request from Arjun — pending review',
-              'Payroll generated for Engineering — 42 employees',
-              'Document uploaded — awaiting approval',
+              { t: 'Priya Sharma — checked in at 9:12 AM', d: 'bg-mint' },
+              { t: 'Leave request from Arjun — pending review', d: 'bg-gold' },
+              { t: 'Payroll generated for Engineering — 42 employees', d: 'bg-lake-blue' },
+              { t: 'Document uploaded — awaiting approval', d: 'bg-coral' },
             ].map((line) => (
               <RevealItem
-                key={line}
-                className="w-full rounded-2xl border border-ash/60 bg-parchment/80 px-4 py-3 text-[13px] text-off-black"
+                key={line.t}
+                className="flex w-full items-center gap-3 rounded-[14px] border border-line bg-surface/90 px-4 py-3 text-[13px] text-off-black shadow-ambient"
               >
-                {line}
+                <span className={`h-2 w-2 shrink-0 rounded-full ${line.d}`} />
+                {line.t}
               </RevealItem>
             ))}
           </RevealGroup>
         </motion.div>
       </section>
 
-      <section id="why-us" className="mx-auto max-w-[1432px] px-6 pb-24">
-        <h2 className="font-serif text-[48px] font-normal text-off-black">Why teams choose this HRMS</h2>
-        <RevealGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <section id="why-us" className="mx-auto max-w-[1200px] px-6 pb-24">
+        <div className="max-w-[560px]">
+          <span className="text-[12px] uppercase tracking-[0.06em] text-lake-blue">Why us</span>
+          <h2 className="mt-3 font-serif text-[38px] font-normal tracking-[-0.03em] text-off-black sm:text-[44px]">
+            Why teams choose this HRMS
+          </h2>
+        </div>
+        <RevealGroup className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2">
           {WHY_CHOOSE.map((f) => (
             <RevealItem
               key={f.title}
-              className="relative overflow-hidden rounded-[40px] border border-ash p-10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(0,0,0,0.06)]"
+              className="group relative overflow-hidden rounded-[24px] border border-line bg-surface p-8 shadow-ambient transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-md"
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${f.tone} opacity-60 blur-2xl`} />
+              <div className={`absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br ${f.tone} opacity-70 blur-2xl transition-opacity duration-300 group-hover:opacity-100`} />
               <div className="relative">
-                <f.icon size={20} className="text-off-black" />
-                <h3 className="mt-4 font-serif text-[24px] font-normal text-off-black">{f.title}</h3>
-                <p className="mt-2 max-w-[420px] text-[16px] leading-relaxed text-graphite">{f.body}</p>
+                <span className="flex h-11 w-11 items-center justify-center rounded-[14px] bg-off-black/[0.05] text-off-black">
+                  <f.icon size={19} />
+                </span>
+                <h3 className="mt-4 font-serif text-[22px] tracking-tight text-off-black">{f.title}</h3>
+                <p className="mt-1.5 max-w-[440px] text-[14px] leading-relaxed text-graphite">{f.body}</p>
               </div>
             </RevealItem>
           ))}
         </RevealGroup>
       </section>
 
-      <section id="faq" className="mx-auto max-w-[900px] px-6 pb-24">
-        <h2 className="mb-4 font-serif text-[48px] font-normal text-off-black">Frequently asked</h2>
+      <section id="faq" className="mx-auto max-w-[880px] px-6 pb-24">
+        <h2 className="mb-8 font-serif text-[38px] font-normal tracking-[-0.03em] text-off-black sm:text-[44px]">
+          Frequently asked
+        </h2>
         <FaqAccordion items={FAQ_ITEMS} />
       </section>
 
-      <section className="mx-auto max-w-[1432px] px-6 pb-24">
+      <section className="mx-auto max-w-[1200px] px-6 pb-24">
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.6 }}
-          className="relative overflow-hidden rounded-[40px] border border-ash px-6 py-20 text-center"
+          className="relative overflow-hidden rounded-[28px] border border-line bg-surface px-6 py-20 text-center shadow-ambient"
         >
           <motion.div
             className="absolute inset-0 bg-gradient-to-t from-gold/40 via-coral/10 to-transparent"
             animate={{ opacity: [0.7, 1, 0.7] }}
             transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
           />
-          <div className="relative flex flex-col items-center gap-6">
-            <h2 className="max-w-[560px] font-serif text-[40px] font-normal leading-tight text-off-black">
+          <div className="relative flex flex-col items-center gap-5">
+            <h2 className="max-w-[560px] font-serif text-[36px] font-normal leading-tight tracking-[-0.03em] text-off-black sm:text-[44px]">
               Every workday, perfectly aligned.
             </h2>
-            <p className="max-w-[440px] text-[16px] text-graphite">
+            <p className="max-w-[440px] text-[15px] text-graphite">
               Set up your organization in minutes — seed data, real workflows, no spreadsheets required.
             </p>
-            <div className="flex gap-4">
-              <Button asChild variant="default">
+            <div className="flex gap-3">
+              <Button asChild variant="default" size="lg">
                 <Link href="/register">Start free ▸</Link>
               </Button>
-              <Button asChild variant="ghost">
+              <Button asChild variant="ghost" size="lg">
                 <Link href="/login">Login</Link>
               </Button>
             </div>
@@ -298,7 +321,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="border-t border-ash">
-        <div className="mx-auto grid max-w-[1432px] grid-cols-2 gap-8 px-6 py-16 sm:grid-cols-4">
+        <div className="mx-auto grid max-w-[1200px] grid-cols-2 gap-8 px-6 py-16 sm:grid-cols-4">
           <div className="col-span-2 flex flex-col gap-4 sm:col-span-1">
             <Logo />
             <p className="text-[12px] uppercase tracking-tight text-smoke">Follow us on</p>
@@ -328,7 +351,7 @@ export default function LandingPage() {
             ]}
           />
         </div>
-        <div className="mx-auto flex max-w-[1432px] items-center justify-between px-6 py-8 text-[12px] uppercase text-smoke">
+        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-8 text-[12px] uppercase text-smoke">
           <span>HRMS © {new Date().getFullYear()}</span>
           <span>Odoo India</span>
         </div>

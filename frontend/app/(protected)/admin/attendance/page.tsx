@@ -62,7 +62,7 @@ export default function AdminAttendancePage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-[40px] font-normal text-off-black">Attendance</h1>
+        <h1 className="font-serif text-[38px] font-normal tracking-tight text-off-black">Attendance</h1>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="primary">Mark absent ▸</Button>
@@ -104,7 +104,7 @@ export default function AdminAttendancePage() {
         </Dialog>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3 rounded-[18px] border border-line bg-surface p-3">
         <Input
           placeholder="Filter by department…"
           value={department}
@@ -120,6 +120,7 @@ export default function AdminAttendancePage() {
             setStatus(e.target.value);
             setPage(1);
           }}
+          className="w-fit"
         >
           <option value="">All statuses</option>
           <option value="PRESENT">Present</option>
@@ -139,14 +140,14 @@ export default function AdminAttendancePage() {
           ) : !data || data.data.length === 0 ? (
             <EmptyState title="No records" description="Try different filters." />
           ) : (
-            <div className="flex flex-col divide-y divide-ash">
+            <div className="flex flex-col divide-y divide-line">
               {data.data.map((row) => (
-                <div key={row.id} className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="text-[14px] text-off-black">
+                <div key={row.id} className="flex items-center justify-between gap-4 py-4">
+                  <div className="min-w-0">
+                    <p className="text-[15px] text-off-black">
                       {row.employeeProfile?.firstName} {row.employeeProfile?.lastName}
                     </p>
-                    <p className="text-[12px] uppercase text-smoke">
+                    <p className="text-[12px] uppercase tracking-[0.04em] text-smoke">
                       {row.employeeProfile?.department ?? '—'} · {new Date(row.date).toLocaleDateString()}
                     </p>
                   </div>

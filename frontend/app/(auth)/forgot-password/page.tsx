@@ -54,18 +54,18 @@ export default function ForgotPasswordPage() {
         <CardDescription>We&apos;ll email you a link to reset it.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit((v) => mutation.mutate(v))}>
-          <div className="flex flex-col gap-2">
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit((v) => mutation.mutate(v))}>
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" autoComplete="email" {...register('email')} />
             <FieldError message={errors.email?.message} />
           </div>
-          <Button type="submit" variant="primary" disabled={mutation.isPending} className="w-full">
+          <Button type="submit" variant="primary" disabled={mutation.isPending} className="mt-1 w-full">
             {mutation.isPending ? 'Sending…' : 'Send reset link'}
           </Button>
         </form>
-        <p className="mt-6 text-center text-[14px] text-graphite">
-          <Link href="/login" className="text-off-black underline">
+        <p className="mt-6 text-center text-[13px] text-graphite">
+          <Link href="/login" className="text-off-black underline underline-offset-4 hover:text-lake-blue">
             Back to login
           </Link>
         </p>

@@ -45,32 +45,32 @@ export default function LoginPage() {
         <CardDescription>Sign in with your work email.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)} aria-label="Login form">
-          <div className="flex flex-col gap-2">
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} aria-label="Login form">
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" autoComplete="email" {...register('email')} />
             <FieldError message={errors.email?.message} />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" autoComplete="current-password" {...register('password')} />
             <FieldError message={errors.password?.message} />
           </div>
-          <label className="flex items-center gap-2 text-[14px] text-graphite">
-            <input type="checkbox" {...register('rememberMe')} className="h-4 w-4 accent-lake-blue" />
+          <label className="flex items-center gap-2 text-[13px] text-graphite">
+            <input type="checkbox" {...register('rememberMe')} className="h-4 w-4 rounded accent-lake-blue" />
             Remember me for 30 days
           </label>
-          <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full">
+          <Button type="submit" variant="primary" disabled={isSubmitting} className="mt-1 w-full">
             {isSubmitting ? 'Logging in…' : 'Log in'}
           </Button>
         </form>
-        <div className="mt-6 flex flex-col items-center gap-2 text-[14px] text-graphite">
-          <Link href="/forgot-password" className="text-off-black underline">
+        <div className="mt-6 flex flex-col items-center gap-2 text-[13px] text-graphite">
+          <Link href="/forgot-password" className="text-off-black underline underline-offset-4 hover:text-lake-blue">
             Forgot your password?
           </Link>
           <p>
             Need an account?{' '}
-            <Link href="/register" className="text-off-black underline">
+            <Link href="/register" className="text-off-black underline underline-offset-4 hover:text-lake-blue">
               Register
             </Link>
           </p>

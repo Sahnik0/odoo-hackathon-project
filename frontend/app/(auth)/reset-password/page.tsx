@@ -74,13 +74,13 @@ function ResetPasswordContent() {
         <CardTitle>Set a new password</CardTitle>
       </CardHeader>
       <CardContent>
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit((v) => mutation.mutate(v))}>
-          <div className="flex flex-col gap-2">
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit((v) => mutation.mutate(v))}>
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="password">New password</Label>
             <Input id="password" type="password" autoComplete="new-password" {...register('password')} />
             <FieldError message={errors.password?.message} />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="confirmPassword">Confirm password</Label>
             <Input
               id="confirmPassword"
@@ -90,7 +90,7 @@ function ResetPasswordContent() {
             />
             <FieldError message={errors.confirmPassword?.message} />
           </div>
-          <Button type="submit" variant="primary" disabled={mutation.isPending} className="w-full">
+          <Button type="submit" variant="primary" disabled={mutation.isPending} className="mt-1 w-full">
             {mutation.isPending ? 'Resetting…' : 'Reset password'}
           </Button>
         </form>
