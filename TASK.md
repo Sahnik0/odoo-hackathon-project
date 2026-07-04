@@ -1,43 +1,55 @@
 # TASK.md — Current Phase Checklist
 
-## Phase 4 — Attendance module
+## Phase 3 — Auth (frontend) + Design System Gate
 
-**DoD:** Check-in/out, all three view granularities, Admin filters all functional
-and tested.
+**DoD:** Design tokens extracted once into `CONTEXT.md` + wired into Tailwind/shadcn.
+Register→verify→login→protected-route→refresh→logout works end-to-end in the
+browser against the real backend (no mocks).
 
-### Rules (Section 2)
-- [ ] Working hours = checkout − checkin, computed server-side (store workedMinutes)
-- [ ] Half-day threshold configurable, default 4h worked → status HALF_DAY
-- [ ] No check-out without a matching check-in on the same calendar day
-- [ ] One attendance row per employee per calendar day (unique) — enforce on check-in
-- [ ] All timestamps stored UTC; display in org timezone (default Asia/Kolkata)
-- [ ] No cron auto-absent — Admin marks absences manually (documented limitation)
+### Design System Gate (do first — every later page reuses this)
+- [ ] Extract color tokens, type scale, spacing scale, radius/shadow from
+      `DESIGN.md` into `CONTEXT.md` (concrete Tailwind v4 `@theme` values)
+- [ ] Wire tokens into `frontend/app/globals.css` `@theme` block
+- [ ] shadcn/ui init + base component overrides (button, card, input, dialog) using
+      the tokens (pill radius, off-black/lake-blue action colors, Ash borders,
+      no shadows on cards per DESIGN.md's Don'ts)
+- [ ] Base layout shell: nav, page container (max-width 1432px per DESIGN.md)
 
-### Endpoints
-- [ ] `POST /attendance/check-in` — employee, own; rejects double check-in same day
-- [ ] `POST /attendance/check-out` — employee, own; rejects if no check-in today;
-      computes workedMinutes + status (PRESENT/HALF_DAY)
-- [ ] `GET /attendance/me` — own records; `view=daily|weekly|monthly` granularity
-- [ ] `GET /attendance` — Admin; filters dept/date(range)/employee/status; paginated
-- [ ] `POST /attendance/mark-absent` — Admin; manual absence for an employee/date
-- [ ] (decide) `PATCH /attendance/:id` — Admin correction? or fold into mark-absent
+### API client + state
+- [ ] `lib/axios.ts` — Axios instance, `baseURL` from `NEXT_PUBLIC_API_URL`
+- [ ] Refresh interceptor: on 401, silently call `/auth/refresh` once, retry the
+      original request; on refresh failure, redirect to `/login`
+- [ ] `lib/queryClient.ts` — TanStack Query v5 provider in root layout
+- [ ] `schemas/auth.ts` — Zod schemas mirroring `backend/src/validators/auth.validators.ts`
+      field-for-field (register/login/forgot/reset)
 
-### Building blocks
-- [ ] `services/attendance.service.ts` (check-in/out, views, admin filters, mark-absent)
-- [ ] `validators/attendance.validators.ts`
-- [ ] `controllers/attendance.controller.ts` + `routes/attendance.routes.ts`
-- [ ] `lib/time.ts` — UTC "today" per org timezone, week/month range helpers
-- [ ] Resolve current user's employeeProfileId (helper — reused by leave/payroll)
+### Pages
+- [ ] `/register` — RHF + Zod, calls `POST /auth/register`, shows "check your email" state
+- [ ] `/verify-email` — reads token from query param, calls `POST /auth/verify-email`
+- [ ] `/login` — RHF + Zod, calls `POST /auth/login`, stores access token in memory
+      (not localStorage — Section 2), redirects to dashboard
+- [ ] `/forgot-password` — calls `POST /auth/forgot-password`
+- [ ] `/reset-password` — reads token from query param, calls `POST /auth/reset-password`
+- [ ] Protected layout — redirects to `/login` if no valid session; role-aware
+      (Admin vs Employee) nav/dashboard shell
 
-### Tests (Supertest)
-- [ ] Check-in creates a PRESENT row; second check-in same day → 409
-- [ ] Check-out without check-in → 409/400
-- [ ] Check-out computes workedMinutes; < threshold → HALF_DAY
-- [ ] daily/weekly/monthly views return correct ranges
-- [ ] Admin filter by status/date/employee; employee hitting admin list → 403
-- [ ] mark-absent by admin; non-admin → 403
-- [ ] Validation-fail case
+### Tests
+- [ ] RTL test: login flow (Section 10 requirement — the one frontend suite
+      that's explicitly required, not optional)
 
 ### Verify + close
-- [ ] All three view granularities + admin filters tested green
-- [ ] Update PROGRESS.md, append CONTEXT.md, rewrite TASK.md for Phase 5, commit
+- [ ] Manual walkthrough: register → check maildev → verify → login → hit a
+      protected page → refresh → logout, all against the real backend
+- [ ] Update PROGRESS.md, append CONTEXT.md, rewrite TASK.md for Phase 4, commit
+
+---
+
+## Backlog (vertical slices, in order — see INSTRUCTIONS.md §11)
+
+- Phase 4 — Employee Profile frontend (backend already done)
+- Phase 5 — Attendance frontend (backend already done)
+- Phase 6 — Leave Management frontend (backend already done)
+- Phase 7 — Payroll frontend (backend already done)
+- Phase 8 — Notifications + File Upload frontend (backend already done)
+- Phase 9 — Cross-cutting UI polish (all modules)
+- Phase 10 — Docs, Docker, README, final QA
