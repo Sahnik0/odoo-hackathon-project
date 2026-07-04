@@ -49,7 +49,7 @@ export default function LoginPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-full rounded-[28px] border border-line bg-surface p-10 shadow-xl backdrop-blur-sm"
+      className="w-full rounded-[28px] border border-line bg-surface p-8 shadow-xl backdrop-blur-sm"
     >
       <div className="mb-8">
         <h1 className="font-serif text-[26px] font-normal tracking-tight text-off-black">
