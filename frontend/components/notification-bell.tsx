@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Bell } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Bell, CheckCircle2 } from 'lucide-react';
 import { useNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from '@/hooks/use-notifications';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
@@ -29,15 +30,29 @@ export function NotificationBell() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="relative flex h-10 w-10 items-center justify-center rounded-full border border-ash text-off-black hover:bg-off-black/5"
+          className="relative flex h-10 w-10 items-center justify-center rounded-full border border-ash text-off-black transition-colors hover:bg-off-black/5"
           aria-label="Notifications"
         >
-          <Bell size={18} />
-          {unreadCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-crimson px-1 text-[10px] text-white">
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </span>
-          )}
+          <motion.span animate={unreadCount > 0 ? { rotate: [0, -12, 10, -8, 0] } : {}} transition={{ duration: 0.6 }}>
+            <Bell size={18} />
+          </motion.span>
+          <AnimatePresence>
+            {unreadCount > 0 && (
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-crimson px-1 text-[10px] text-white"
+              >
+                <motion.span
+                  className="absolute inset-0 rounded-full bg-crimson"
+                  animate={{ scale: [1, 1.6], opacity: [0.6, 0] }}
+                  transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut' }}
+                />
+                <span className="relative">{unreadCount > 9 ? '9+' : unreadCount}</span>
+              </motion.span>
+            )}
+          </AnimatePresence>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -51,7 +66,7 @@ export function NotificationBell() {
         </div>
         {!data || data.data.length === 0 ? (
           <div className="p-4">
-            <EmptyState title="You're all caught up" />
+            <EmptyState title="You're all caught up" icon={CheckCircle2} />
           </div>
         ) : (
           <div className="flex max-h-[400px] flex-col gap-1 overflow-y-auto">

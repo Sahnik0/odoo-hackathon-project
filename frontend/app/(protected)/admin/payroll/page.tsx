@@ -122,7 +122,7 @@ export default function AdminPayrollPage() {
                     />
                   </div>
                 </div>
-                <Button type="submit" variant="primary" disabled={upsertMutation.isPending} className="w-fit">
+                <Button type="submit" variant="default" disabled={upsertMutation.isPending} className="w-fit">
                   {upsertMutation.isPending ? 'Saving…' : 'Save structure'}
                 </Button>
               </form>

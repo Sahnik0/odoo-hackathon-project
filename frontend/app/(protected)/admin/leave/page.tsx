@@ -114,7 +114,7 @@ function ReviewRow({
         <Dialog open={open} onOpenChange={setOpen}>
           <div className="flex gap-2">
             <DialogTrigger asChild>
-              <Button size="sm" variant="primary" onClick={() => openWith('APPROVED')}>
+              <Button size="sm" variant="default" onClick={() => openWith('APPROVED')}>
                 Approve
               </Button>
             </DialogTrigger>

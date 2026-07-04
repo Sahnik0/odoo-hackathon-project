@@ -102,7 +102,7 @@ export function DocumentsPanel({
                   <StatusBadge status={doc.status} />
                   {canReview && doc.status === 'PENDING' && (
                     <div className="flex gap-2">
-                      <Button size="sm" variant="primary" onClick={() => handleReview(doc.id, 'APPROVED')}>
+                      <Button size="sm" variant="default" onClick={() => handleReview(doc.id, 'APPROVED')}>
                         Approve
                       </Button>
                       <Button size="sm" variant="destructive" onClick={() => handleReview(doc.id, 'REJECTED')}>
