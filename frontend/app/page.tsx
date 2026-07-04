@@ -131,26 +131,32 @@ export default function LandingPage() {
         </div>
       )}
 
-      <header className="mx-auto flex h-20 max-w-[1432px] items-center justify-between px-6">
-        <Logo />
-        <nav className="hidden items-center gap-8 md:flex">
-          <a href="#how-it-works" className="text-[14px] uppercase tracking-tight text-off-black hover:text-lake-blue">
-            How it works
-          </a>
-          <a href="#why-us" className="text-[14px] uppercase tracking-tight text-off-black hover:text-lake-blue">
-            Why us
-          </a>
-          <a href="#faq" className="text-[14px] uppercase tracking-tight text-off-black hover:text-lake-blue">
-            FAQ
-          </a>
-        </nav>
-        <div className="flex items-center gap-3">
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/login">Login ▸</Link>
-          </Button>
-          <Button asChild variant="primary" size="sm">
-            <Link href="/register">Get started ▸</Link>
-          </Button>
+      <header className="sticky top-0 z-40 border-b border-line/70 bg-parchment/80 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-6">
+          <Logo />
+          <nav className="hidden items-center gap-1 rounded-full border border-line bg-surface/60 p-1 md:flex">
+            {[
+              { href: '#how-it-works', label: 'How it works' },
+              { href: '#why-us', label: 'Why us' },
+              { href: '#faq', label: 'FAQ' },
+            ].map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="rounded-full px-4 py-1.5 text-[13px] font-medium uppercase tracking-tight text-graphite transition-colors hover:bg-off-black/[0.05] hover:text-off-black"
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button asChild variant="default" size="sm">
+              <Link href="/register">Get started ▸</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
