@@ -45,7 +45,7 @@ export default function LoginPage() {
   async function onSubmit(values: LoginInput) {
     setIsSubmitting(true);
     try {
-      await login(values);
+      const user = await login(values);
       // If a role was pre-selected on the verify-email page, apply it right away
       const pending = sessionStorage.getItem('pendingRole') as 'EMPLOYEE' | 'ADMIN' | null;
       if (pending === 'EMPLOYEE' || pending === 'ADMIN') {
@@ -53,7 +53,8 @@ export default function LoginPage() {
         await updateRole(pending);
         router.push(pending === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
       } else {
-        router.push('/select-role');
+        // Go straight to the user's dashboard based on their stored role
+        router.push(user.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
       }
     } catch (err) {
       toast.error(apiErrorMessage(err));
