@@ -159,7 +159,7 @@ export default function LandingPage() {
       <div className={announcementOpen ? 'h-[120px]' : 'h-20'} />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-32 pb-32 md:pt-48 md:pb-40">
+      <section className="relative overflow-hidden pt-16 pb-20 md:pt-20 md:pb-24">
         <div className="mx-auto max-w-[var(--page-max-width)] px-10">
           <div className="flex flex-col items-center text-center">
             <motion.h1
@@ -182,6 +182,20 @@ export default function LandingPage() {
               One cohesive environment for identity provisioning, attendance logs, leave structures, and payroll ledger.
               Typeset cleanly, compiled type-safely.
             </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="mt-10"
+            >
+              <Button asChild variant="default" size="lg" className="h-12 px-8 text-[15px] font-mono uppercase tracking-tight gap-2">
+                <Link href={user ? (user.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard') : '/register'}>
+                  {user ? 'Go to Dashboard' : 'Get Started Free'}
+                  <span className="text-[12px] translate-y-[-0.5px]">▸</span>
+                </Link>
+              </Button>
+            </motion.div>
           </div>
         </div>
       </section>

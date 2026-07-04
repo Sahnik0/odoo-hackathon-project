@@ -23,7 +23,7 @@ export async function registerRequest(input: {
 }
 
 export async function verifyEmailRequest(token: string) {
-  const res = await api.post<ApiSuccess<{ verified: boolean; loginId: string; message: string }>>('/auth/verify-email', {
+  const res = await api.post<ApiSuccess<{ verified: boolean; loginId: string; email: string; message: string }>>('/auth/verify-email', {
     token,
   });
   return res.data.data;

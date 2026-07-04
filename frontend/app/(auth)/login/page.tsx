@@ -46,12 +46,29 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       const user = await login(values);
-      // If a role was pre-selected on the verify-email page, apply it right away
+      
       const pending = sessionStorage.getItem('pendingRole') as 'EMPLOYEE' | 'ADMIN' | null;
+      const pendingEmail = sessionStorage.getItem('pendingRole_email');
+      const pendingLoginId = sessionStorage.getItem('pendingRole_loginId');
+
       if (pending === 'EMPLOYEE' || pending === 'ADMIN') {
+        const inputVal = values.email.trim().toLowerCase();
+        const matchesEmail = pendingEmail && inputVal === pendingEmail.toLowerCase();
+        const matchesLoginId = pendingLoginId && inputVal === pendingLoginId.toLowerCase();
+        const matchesReturnedUser = pendingEmail && user.email.toLowerCase() === pendingEmail.toLowerCase();
+
+        // Always clean up sessionStorage pending variables
         sessionStorage.removeItem('pendingRole');
-        await updateRole(pending);
-        router.push(pending === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
+        sessionStorage.removeItem('pendingRole_email');
+        sessionStorage.removeItem('pendingRole_loginId');
+
+        if (matchesEmail || matchesLoginId || matchesReturnedUser) {
+          await updateRole(pending);
+          router.push(pending === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
+        } else {
+          // Different user logged in, use their pre-existing role
+          router.push(user.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
+        }
       } else {
         // Go straight to the user's dashboard based on their stored role
         router.push(user.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard');

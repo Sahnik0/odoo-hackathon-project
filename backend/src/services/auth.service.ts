@@ -89,7 +89,7 @@ export async function register(input: RegisterInput): Promise<{ id: string; emai
 }
 
 /** Verify email via token (24h, single-use). Returns loginId so the frontend can display it. */
-export async function verifyEmail(rawToken: string): Promise<{ loginId: string }> {
+export async function verifyEmail(rawToken: string): Promise<{ loginId: string; email: string }> {
   const user = await prisma.user.findFirst({
     where: { emailVerifyTokenHash: hashToken(rawToken) },
     include: { profile: true },
@@ -122,7 +122,7 @@ export async function verifyEmail(rawToken: string): Promise<{ loginId: string }
     }),
   ]);
 
-  return { loginId: user.profile?.loginId ?? '' };
+  return { loginId: user.profile?.loginId ?? '', email: user.email };
 }
 
 /** Resend verification email with a 60s cooldown (Section 2). Generic on unknown /

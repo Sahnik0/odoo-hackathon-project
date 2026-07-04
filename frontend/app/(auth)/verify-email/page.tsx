@@ -40,8 +40,9 @@ function VerifyEmailContent() {
   const [status, setStatus] = useState<Status>('verifying');
   const [message, setMessage] = useState('');
   const [loginId, setLoginId] = useState('');
+  const [verifiedEmail, setVerifiedEmail] = useState('');
   const [copied, setCopied] = useState(false);
-  const [step, setStep] = useState<Step>('verified');
+  const [step, setStep] = useState<Step>('role');
   const [selectedRole, setSelectedRole] = useState<'EMPLOYEE' | 'ADMIN' | null>(null);
 
   useEffect(() => {
@@ -56,6 +57,7 @@ function VerifyEmailContent() {
         if (cancelled) return;
         setStatus('success');
         setLoginId(res.loginId);
+        setVerifiedEmail(res.email);
         setMessage(res.message);
       })
       .catch((err) => {
@@ -73,11 +75,16 @@ function VerifyEmailContent() {
     });
   }
 
-  function proceedToLogin() {
+  function confirmRoleAndProceed() {
     if (selectedRole) {
-      // Store chosen role so the login page can apply it immediately after auth
       sessionStorage.setItem('pendingRole', selectedRole);
+      sessionStorage.setItem('pendingRole_email', verifiedEmail);
+      sessionStorage.setItem('pendingRole_loginId', loginId);
     }
+    setStep('verified');
+  }
+
+  function proceedToLogin() {
     router.push('/login');
   }
 
@@ -174,10 +181,10 @@ function VerifyEmailContent() {
               <Button
                 type="button"
                 variant="primary"
-                onClick={() => setStep('role')}
+                onClick={proceedToLogin}
                 className="mt-6 w-full gap-2"
               >
-                Choose your role <ArrowRight size={15} />
+                Continue to Sign In <ArrowRight size={15} />
               </Button>
             </div>
           </motion.div>
@@ -230,10 +237,10 @@ function VerifyEmailContent() {
               type="button"
               variant="primary"
               disabled={!selectedRole}
-              onClick={proceedToLogin}
+              onClick={confirmRoleAndProceed}
               className="mt-5 w-full gap-2"
             >
-              Continue to Sign In <ArrowRight size={15} />
+              Continue to Get Login ID <ArrowRight size={15} />
             </Button>
 
             <p className="mt-3 text-center text-[11px] text-smoke">

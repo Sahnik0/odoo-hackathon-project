@@ -184,10 +184,12 @@ Seeding the database cleans existing entries and populates the database with 1 A
 
 ### 1. Onboarding Flow
 1. **Registration:** Users self-register on the `/register` page by providing their name, email, password, and optional Company Name & Phone.
-2. **Email Verification:** A verification link is sent via SMTP (catchable in development via **maildev** at http://localhost:1080).
-3. **Verification & Login:** Clicking the link verifies the email, allowing the user to log in.
-4. **Role Selection & Session Sync:** On first-time login, the user selects their role (`ADMIN` or `EMPLOYEE`) at `/select-role`. The backend updates the database, signs and re-issues a new JWT access token and rotating refresh token with the updated role, and sends them back to the client.
-5. **Session Activation:** The frontend context immediately absorbs the new tokens (updating in-memory state and cookies) and redirects the user to the appropriate dashboard (`/admin/dashboard` or `/dashboard`). Subsequent logins bypass role selection and route directly to their dashboard.
+2. **Email Verification Link:** A verification link is sent via SMTP (catchable in development via **maildev** at http://localhost:1080).
+3. **Role Selection (Verification Stage):** Clicking the link verifies the email, bringing the user to the verification status page. First, the user selects their target role (`ADMIN` or `EMPLOYEE`).
+4. **Login ID Generation:** After confirming the role, the user's generated **Login ID** is displayed (e.g. `OIJODO20250001`), which they save to sign in.
+5. **Initial Login:** The user proceeds to the `/login` page and signs in with their new Login ID (or email).
+6. **Session & Role Sync Fallback:** If a user logs in and role selection is still pending (e.g. skipped the verification page flow), they select their role at `/select-role`. The backend updates the database and immediately signs/re-issues the JWT access and refresh tokens, which the frontend context automatically absorbs to prevent any authorization errors (`403 Forbidden`).
+7. **Session Activation:** The frontend redirects the user to the appropriate dashboard (`/admin/dashboard` or `/dashboard`). Subsequent logins bypass role selection and route directly to the dashboard.
 
 ### 2. Data Synchronization (Admins and Employees)
 * **Company name propagation:** The `companyName` supplied during registration is persisted in the `EmployeeProfile` model.
@@ -249,8 +251,8 @@ Seeding the database cleans existing entries and populates the database with 1 A
 
 1. User registers with name, email, and password.
 2. A verification email is sent via SMTP (maildev in dev — check http://localhost:1080).
-3. User clicks the link in the email to verify their account.
-4. On first login after registration, the user picks a role (Employee or HR/Admin) on the select-role page. The backend updates the role and immediately re-issues a new JWT access token and rotating refresh token to prevent any authorization/permissions sync issues. Seeded demo users already have roles assigned and skip this step.
-5. The login and role-selection endpoints issue a short-lived JWT access token and a rotating opaque refresh token (stored in an httpOnly cookie).
+3. User clicks the link in the email to verify their account, selects a role (Employee or HR/Admin), and is shown their unique Login ID.
+4. User logs in with their Login ID. If role selection was somehow skipped during verification, they select it on their first login at `/select-role` (where backend updates the database and immediately signs/re-issues JWT access and refresh tokens to prevent permissions mismatch). Seeded demo users already have roles assigned and skip this step.
+5. Successful login/role selection issues a short-lived JWT access token and a rotating opaque refresh token (stored in an httpOnly cookie).
 6. The refresh token is rotated on every silent refresh. Old tokens are invalidated immediately.
 7. Password reset follows the same email-link pattern with a 1-hour expiry.

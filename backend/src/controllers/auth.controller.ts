@@ -37,7 +37,7 @@ export const register = asyncHandler(async (req, res) => {
 
 export const verifyEmail = asyncHandler(async (req, res) => {
   const result = await authService.verifyEmail(req.body.token);
-  ok(res, { verified: true, loginId: result.loginId, message: 'Email verified. You can now log in with your Login ID.' });
+  ok(res, { verified: true, loginId: result.loginId, email: result.email, message: 'Email verified. You can now log in with your Login ID.' });
 });
 
 export const resendVerification = asyncHandler(async (req, res) => {
