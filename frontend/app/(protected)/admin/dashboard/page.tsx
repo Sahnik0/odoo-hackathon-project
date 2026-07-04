@@ -169,7 +169,7 @@ export default function AdminDashboardPage() {
                           {emp.firstName} {emp.lastName}
                         </p>
                         <p className="truncate text-[11px] uppercase tracking-tight text-smoke">
-                          {emp.department ?? 'No department'}
+                          {emp.department || emp.companyName || 'No department'}
                         </p>
                       </div>
                     </div>

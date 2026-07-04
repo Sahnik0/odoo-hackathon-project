@@ -170,6 +170,7 @@ export async function update(id: string, input: UpdateEmployeeInput, requester: 
   if (input.phone !== undefined) data.phone = sanitizeText(input.phone);
   if (input.address !== undefined) data.address = sanitizeText(input.address);
   if (input.profilePicture !== undefined) data.profilePicture = input.profilePicture.trim();
+  if (input.companyName !== undefined) data.companyName = sanitizeText(input.companyName);
   if (requester.role === 'ADMIN') {
     if (input.firstName !== undefined) data.firstName = input.firstName.trim();
     if (input.lastName !== undefined) data.lastName = input.lastName.trim();

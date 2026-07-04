@@ -155,7 +155,7 @@ export default function AdminEmployeesPage() {
                       {emp.firstName} {emp.lastName}
                     </p>
                     <p className="text-[12px] uppercase tracking-[0.04em] text-smoke">
-                      {emp.loginId} · {emp.department ?? 'No department'}
+                      {emp.loginId} · {emp.department || emp.companyName || 'No department'}
                     </p>
                   </div>
                   <StatusBadge status={emp.employmentStatus} />

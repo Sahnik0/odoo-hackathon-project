@@ -8,6 +8,7 @@ export interface EmployeeProfile {
   loginId: string;
   firstName: string;
   lastName: string;
+  companyName: string | null;
   phone: string | null;
   address: string | null;
   profilePicture: string | null;
@@ -24,6 +25,7 @@ export interface EmployeeProfile {
 export interface UpdateEmployeeInput {
   firstName?: string;
   lastName?: string;
+  companyName?: string;
   phone?: string;
   address?: string;
   profilePicture?: string;

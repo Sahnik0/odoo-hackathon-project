@@ -41,6 +41,7 @@ export const updateEmployeeSchema = z
     phone,
     address,
     profilePicture,
+    companyName: z.string().trim().max(100).optional(),
     department: z.string().trim().max(80).optional(),
     designation: z.string().trim().max(80).optional(),
     dateOfJoining: z.coerce.date().optional(),

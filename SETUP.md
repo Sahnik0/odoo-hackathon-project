@@ -18,7 +18,20 @@ cd backend
 npm install
 cp .env.example .env          # defaults already point at the Docker Postgres/maildev above
 npx prisma migrate deploy --schema=../prisma/schema.prisma   # apply migrations
-npm run seed                  # 1 admin + 6 employees, realistic data across every module
+```
+
+### Seeding the Database (run from the repository root)
+* **Windows (PowerShell):**
+  ```powershell
+  $env:DATABASE_URL="postgresql://hrms:hrms@localhost:5432/hrms?schema=public"; $env:NODE_PATH="backend/node_modules;node_modules"; npx ts-node --project backend/tsconfig.json --transpile-only prisma/seed.ts
+  ```
+* **macOS / Linux (Bash):**
+  ```bash
+  DATABASE_URL="postgresql://hrms:hrms@localhost:5432/hrms?schema=public" NODE_PATH="backend/node_modules:node_modules" npx ts-node --project backend/tsconfig.json --transpile-only prisma/seed.ts
+  ```
+
+### Start Backend Development Server (run from `backend/`):
+```bash
 npm run dev                   # http://localhost:4000
 ```
 
@@ -30,11 +43,10 @@ Verify: `curl http://localhost:4000/health` → `{"success":true,...}`.
 |---|---|
 | `npx prisma migrate dev --schema=../prisma/schema.prisma --name <name>` | Create + apply a new migration (dev) |
 | `npx prisma migrate deploy --schema=../prisma/schema.prisma` | Apply existing migrations (prod-safe, what you run on a fresh clone) |
-| `npx prisma generate --schema=../prisma/schema.prisma` | Regenerate the Prisma Client after a schema change |
-| `npm run seed` | Clean-then-seed demo data (idempotent — safe to re-run) |
+| `npx prisma generate --schema=../prisma/schema.prisma` | Regenerate the Prisma Client after a schema change (run whenever the schema file changes) |
 | `npx prisma studio --schema=../prisma/schema.prisma` | Browse the DB in a GUI at http://localhost:5555 |
 
-(The schema lives at repo-root `prisma/`, consumed by `backend/` — see `CONTEXT.md` for why. `npm run` scripts already point `--schema` at it via `package.json`'s `prisma.schema` field, so plain `npx prisma migrate dev` also works from `backend/`.)
+(The schema lives at repo-root `prisma/`, consumed by `backend/` — see `CONTEXT.md` for why. `package.json`'s `prisma.schema` field points to it, so plain `npx prisma migrate dev` also works from `backend/`.)
 
 ## 3. Frontend (Next.js)
 

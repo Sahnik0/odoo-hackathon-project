@@ -37,6 +37,7 @@ export default function AdminEmployeeDetailPage({ params }: { params: Promise<{ 
       reset({
         firstName: profile.firstName,
         lastName: profile.lastName,
+        companyName: profile.companyName ?? '',
         department: profile.department ?? '',
         designation: profile.designation ?? '',
         dateOfJoining: profile.dateOfJoining.slice(0, 10),
@@ -118,6 +119,11 @@ export default function AdminEmployeeDetailPage({ params }: { params: Promise<{ 
                 <Label htmlFor="lastName">Last name</Label>
                 <Input id="lastName" {...register('lastName')} />
                 <FieldError message={errors.lastName?.message} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="companyName">Company name</Label>
+                <Input id="companyName" {...register('companyName')} />
+                <FieldError message={errors.companyName?.message} />
               </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="department">Department</Label>

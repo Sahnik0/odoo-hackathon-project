@@ -31,7 +31,7 @@ export default function ProfilePage() {
   } = useForm<SelfEditInput>({ resolver: zodResolver(selfEditSchema) });
 
   useEffect(() => {
-    if (profile) reset({ phone: profile.phone ?? '', address: profile.address ?? '' });
+    if (profile) reset({ phone: profile.phone ?? '', address: profile.address ?? '', companyName: profile.companyName ?? '' });
   }, [profile, reset]);
 
   async function onSubmit(values: SelfEditInput) {
@@ -86,6 +86,11 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent>
             <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="companyName">Company name</Label>
+                <Input id="companyName" {...register('companyName')} />
+                <FieldError message={errors.companyName?.message} />
+              </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="phone">Phone</Label>
                 <Input id="phone" {...register('phone')} />

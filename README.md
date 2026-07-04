@@ -146,19 +146,53 @@ Additional seeded employees are listed in `prisma/seed.ts`.
 
 ---
 
-## Prisma Commands
+## Database Setup & Prisma Client Regeneration
 
-Run from the `backend/` directory.
+Whenever you modify `prisma/schema.prisma` or perform a fresh checkout, you must keep the Prisma Client and Database schema in sync. Run the following commands from the `backend/` directory:
 
-| Command | Description |
-|---|---|
-| `npm run prisma:migrate` | Create and apply a new migration (dev) |
-| `npx prisma migrate deploy` | Apply existing migrations (production-safe) |
-| `npx prisma generate` | Regenerate the Prisma Client after a schema change |
-| `npm run seed` | Clean and reseed demo data (idempotent) |
-| `npm run prisma:studio` | Open Prisma Studio GUI at http://localhost:5555 |
+### 1. Generating & Updating Prisma Client
+Run this command whenever you change the schema to update the TypeScript types:
+```bash
+npx prisma generate
+```
 
-The schema lives at `prisma/schema.prisma` (repo root). The `backend/package.json` `prisma.schema` field points to it, so plain `npx prisma` commands work from `backend/` without extra flags.
+### 2. Database Migrations
+* **Development (Create and apply a new migration):**
+  ```bash
+  npx prisma migrate dev
+  ```
+* **Production/Fresh Clone (Apply existing migrations safely):**
+  ```bash
+  npx prisma migrate deploy
+  ```
+
+### 3. Cross-Platform Seeding
+Seeding the database cleans existing entries and populates the database with 1 Admin and 6 default Employee profiles. Run from the project **root** directory:
+
+* **Windows (PowerShell):**
+  ```powershell
+  $env:DATABASE_URL="postgresql://hrms:hrms@localhost:5432/hrms?schema=public"; $env:NODE_PATH="backend/node_modules;node_modules"; npx ts-node --project backend/tsconfig.json --transpile-only prisma/seed.ts
+  ```
+* **macOS / Linux (Bash):**
+  ```bash
+  DATABASE_URL="postgresql://hrms:hrms@localhost:5432/hrms?schema=public" NODE_PATH="backend/node_modules:node_modules" npx ts-node --project backend/tsconfig.json --transpile-only prisma/seed.ts
+  ```
+
+---
+
+## Onboarding & Authentication Sync Flow
+
+### 1. Onboarding Flow
+1. **Registration:** Users self-register on the `/register` page by providing their name, email, password, and optional Company Name & Phone.
+2. **Email Verification:** A verification link is sent via SMTP (catchable in development via **maildev** at http://localhost:1080).
+3. **Verification & Login:** Clicking the link verifies the email, allowing the user to log in.
+4. **Role Selection:** On first-time login, the user selects their role (`ADMIN` or `EMPLOYEE`) at `/select-role`.
+5. **Session Activation:** Once selected, the user is redirected to the appropriate dashboard (`/admin/dashboard` or `/dashboard`) and will not be prompted for role selection again.
+
+### 2. Data Synchronization (Admins and Employees)
+* **Company name propagation:** The `companyName` supplied during registration is persisted in the `EmployeeProfile` model.
+* **HR Admin Visibility:** Self-registered profiles are instantly visible in the HR Admin dashboard employee roster and directory list.
+* **Unified Fallback:** If an employee profile lacks a designated `department`, the interface automatically falls back to displaying their registered `companyName` (e.g., `OIRAKU20200001 · Acme Corp` instead of `No department`), maintaining seamless visual synchronization.
 
 ---
 
