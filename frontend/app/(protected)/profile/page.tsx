@@ -55,8 +55,8 @@ export default function ProfilePage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-serif text-[40px] font-normal text-off-black">My Profile</h1>
-        <p className="mt-2 text-[14px] text-graphite">{profile.loginId}</p>
+        <h1 className="font-serif text-[38px] font-normal tracking-tight text-off-black">My Profile</h1>
+        <p className="mt-1.5 text-[15px] text-graphite">{profile.loginId}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -73,7 +73,7 @@ export default function ProfilePage() {
             <Field label="Designation" value={profile.designation ?? '—'} />
             <Field label="Date of joining" value={new Date(profile.dateOfJoining).toLocaleDateString()} />
             <div className="flex flex-col gap-1">
-              <span className="text-[12px] uppercase text-smoke">Status</span>
+              <span className="text-[12px] uppercase tracking-[0.04em] text-smoke">Status</span>
               <StatusBadge status={profile.employmentStatus} />
             </div>
           </CardContent>
@@ -112,7 +112,7 @@ export default function ProfilePage() {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[12px] uppercase text-smoke">{label}</span>
+      <span className="text-[12px] uppercase tracking-[0.04em] text-smoke">{label}</span>
       <span className="text-[16px] text-off-black">{value}</span>
     </div>
   );

@@ -40,23 +40,27 @@ export default function AdminLeavePage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-serif text-[40px] font-normal text-off-black">Leave approvals</h1>
+        <h1 className="font-serif text-[38px] font-normal tracking-tight text-off-black">Leave approvals</h1>
+        <p className="mt-1.5 text-[15px] text-graphite">Review, approve or reject time-off requests.</p>
       </div>
 
-      <Select
-        value={status}
-        onChange={(e) => {
-          setStatus(e.target.value);
-          setPage(1);
-        }}
-        className="w-fit"
-      >
-        <option value="PENDING">Pending</option>
-        <option value="APPROVED">Approved</option>
-        <option value="REJECTED">Rejected</option>
-        <option value="CANCELLED">Cancelled</option>
-        <option value="">All</option>
-      </Select>
+      <div className="flex flex-wrap items-center gap-2 rounded-[18px] border border-line bg-surface p-3">
+        <span className="pl-1 text-[12px] uppercase tracking-[0.04em] text-smoke">Filter</span>
+        <Select
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value);
+            setPage(1);
+          }}
+          className="w-fit"
+        >
+          <option value="PENDING">Pending</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="CANCELLED">Cancelled</option>
+          <option value="">All</option>
+        </Select>
+      </div>
 
       <Card>
         <CardHeader>
@@ -68,7 +72,7 @@ export default function AdminLeavePage() {
           ) : !data || data.data.length === 0 ? (
             <EmptyState title="Nothing to review" description="No requests match this filter." />
           ) : (
-            <div className="flex flex-col divide-y divide-ash">
+            <div className="flex flex-col divide-y divide-line">
               {data.data.map((req) => (
                 <ReviewRow key={req.id} request={req} onReview={handleReview} isPending={reviewMutation.isPending} />
               ))}

@@ -67,23 +67,28 @@ export default function AdminPayrollPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-serif text-[40px] font-normal text-off-black">Payroll</h1>
+      <div>
+        <h1 className="font-serif text-[38px] font-normal tracking-tight text-off-black">Payroll</h1>
+        <p className="mt-1.5 text-[15px] text-graphite">Manage salary structures and generate monthly payroll.</p>
+      </div>
 
-      <Select
-        value={employeeId}
-        onChange={(e) => {
-          setEmployeeId(e.target.value);
-          setPage(1);
-        }}
-        className="w-fit"
-      >
-        <option value="">All employees</option>
-        {employees?.data.map((e) => (
-          <option key={e.id} value={e.id}>
-            {e.firstName} {e.lastName} ({e.loginId})
-          </option>
-        ))}
-      </Select>
+      <div className="rounded-[18px] border border-line bg-surface p-3">
+        <Select
+          value={employeeId}
+          onChange={(e) => {
+            setEmployeeId(e.target.value);
+            setPage(1);
+          }}
+          className="w-fit"
+        >
+          <option value="">All employees</option>
+          {employees?.data.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.firstName} {e.lastName} ({e.loginId})
+            </option>
+          ))}
+        </Select>
+      </div>
 
       {employeeId && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -180,18 +185,20 @@ export default function AdminPayrollPage() {
           ) : !payrolls || payrolls.data.length === 0 ? (
             <EmptyState title="No payroll generated yet" />
           ) : (
-            <div className="flex flex-col divide-y divide-ash">
+            <div className="flex flex-col divide-y divide-line">
               {payrolls.data.map((p) => (
-                <div key={p.id} className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="text-[14px] text-off-black">
+                <div key={p.id} className="flex items-center justify-between gap-4 py-4">
+                  <div className="min-w-0">
+                    <p className="text-[15px] text-off-black">
                       {p.employeeProfile?.firstName} {p.employeeProfile?.lastName}
                     </p>
-                    <p className="text-[12px] uppercase text-smoke">
+                    <p className="text-[12px] uppercase tracking-[0.04em] text-smoke">
                       {MONTH_NAMES[p.month - 1]} {p.year}
                     </p>
                   </div>
-                  <span className="text-[16px] text-off-black">{formatPaise(p.net)}</span>
+                  <span className="font-serif text-[16px] tracking-tight tabular-nums text-off-black">
+                    {formatPaise(p.net)}
+                  </span>
                 </div>
               ))}
             </div>

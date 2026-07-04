@@ -65,8 +65,8 @@ export function DocumentsPanel({
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {!canReview && (
-          <div className="flex items-center gap-3">
-            <Select ref={categoryRef} defaultValue="ID_PROOF">
+          <div className="flex flex-wrap items-center gap-3 rounded-[14px] border border-line bg-surface-raised p-3">
+            <Select ref={categoryRef} defaultValue="ID_PROOF" className="w-fit">
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {c.replace('_', ' ')}
@@ -80,7 +80,13 @@ export function DocumentsPanel({
               hidden
               onChange={handleUpload}
             />
-            <Button type="button" variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={uploadMutation.isPending}
+              onClick={() => fileRef.current?.click()}
+            >
               {uploadMutation.isPending ? 'Uploading…' : 'Upload document'}
             </Button>
           </div>
@@ -91,12 +97,14 @@ export function DocumentsPanel({
         ) : documents.length === 0 ? (
           <EmptyState title="No documents yet" description="Uploaded files will show up here for review." />
         ) : (
-          <div className="flex flex-col divide-y divide-ash">
+          <div className="flex flex-col divide-y divide-line">
             {documents.map((doc) => (
-              <div key={doc.id} className="flex items-center justify-between py-3">
-                <div>
-                  <p className="text-[14px] text-off-black">{doc.fileName}</p>
-                  <p className="text-[12px] uppercase text-smoke">{doc.category.replace('_', ' ')}</p>
+              <div key={doc.id} className="flex items-center justify-between gap-4 py-3.5">
+                <div className="min-w-0">
+                  <p className="truncate text-[14px] text-off-black">{doc.fileName}</p>
+                  <p className="text-[12px] uppercase tracking-[0.04em] text-smoke">
+                    {doc.category.replace('_', ' ')}
+                  </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge status={doc.status} />
@@ -105,7 +113,7 @@ export function DocumentsPanel({
                       <Button size="sm" variant="default" onClick={() => handleReview(doc.id, 'APPROVED')}>
                         Approve
                       </Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleReview(doc.id, 'REJECTED')}>
+                      <Button size="sm" variant="ghost" onClick={() => handleReview(doc.id, 'REJECTED')}>
                         Reject
                       </Button>
                     </div>

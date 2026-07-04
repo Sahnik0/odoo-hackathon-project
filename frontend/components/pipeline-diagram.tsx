@@ -43,8 +43,8 @@ function connectorPath(fromX: number, fromY: number, toX: number, toY: number) {
 // diagram (AGENTS.md: DESIGN.md is look-only, never copy its content).
 function NodeTag({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <div className="flex items-center gap-2 whitespace-nowrap rounded-full border border-ash bg-parchment px-5 py-3 text-[14px] uppercase tracking-tight text-off-black shadow-[0_0_0_1px_rgba(0,0,0,0)] transition-shadow hover:shadow-[0_0_10px_rgba(0,0,0,0.08)]">
-      <Icon size={14} />
+    <div className="flex items-center gap-2 whitespace-nowrap rounded-full border border-line bg-surface px-5 py-3 text-[13px] uppercase tracking-tight text-off-black shadow-ambient transition-shadow hover:shadow-md">
+      <Icon size={14} className="text-lake-blue" />
       {label}
     </div>
   );
@@ -69,7 +69,7 @@ export function PipelineDiagram() {
             <motion.path
               key={`l-${i}`}
               d={connectorPath(LEFT_X + LEFT_W, ROW_Y[i] + NODE_H / 2, HUB_CX - HUB_R, HUB_CY)}
-              stroke="#cecac8"
+              stroke="#d8d3ce"
               strokeWidth={1.5}
               initial={{ pathLength: 0, opacity: 0 }}
               whileInView={{ pathLength: 1, opacity: 1 }}
@@ -81,7 +81,7 @@ export function PipelineDiagram() {
             <motion.path
               key={`r-${i}`}
               d={connectorPath(HUB_CX + HUB_R, HUB_CY, RIGHT_X, ROW_Y[i] + NODE_H / 2)}
-              stroke="#cecac8"
+              stroke="#d8d3ce"
               strokeWidth={1.5}
               initial={{ pathLength: 0, opacity: 0 }}
               whileInView={{ pathLength: 1, opacity: 1 }}
@@ -132,7 +132,7 @@ export function PipelineDiagram() {
             animate={{ opacity: [0.4, 0.8, 0.4] }}
             transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           />
-          <div className="relative flex h-full w-full rotate-45 items-center justify-center rounded-3xl border border-ash bg-parchment">
+          <div className="relative flex h-full w-full rotate-45 items-center justify-center rounded-[20px] border border-line bg-surface shadow-ambient">
             <DottedMark size={32} className="-rotate-45 text-off-black" />
           </div>
         </motion.div>

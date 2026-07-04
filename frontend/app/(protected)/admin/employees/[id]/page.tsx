@@ -77,14 +77,20 @@ export default function AdminEmployeeDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-serif text-[40px] font-normal text-off-black">
-            {profile.firstName} {profile.lastName}
-          </h1>
-          <p className="mt-2 text-[14px] text-graphite">
-            {profile.loginId} · {profile.user.email}
-          </p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-periwinkle-mist/60 font-serif text-[20px] text-off-black">
+            {profile.firstName[0]}
+            {profile.lastName[0]}
+          </span>
+          <div>
+            <h1 className="font-serif text-[32px] font-normal tracking-tight text-off-black">
+              {profile.firstName} {profile.lastName}
+            </h1>
+            <p className="mt-0.5 text-[13px] text-graphite">
+              {profile.loginId} · {profile.user.email}
+            </p>
+          </div>
         </div>
         <ConfirmDialog
           trigger={<Button variant="destructive">Remove employee</Button>}

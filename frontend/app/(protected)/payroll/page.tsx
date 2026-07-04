@@ -15,8 +15,8 @@ export default function PayrollPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="font-serif text-[40px] font-normal text-off-black">Payroll</h1>
-        <p className="mt-2 text-[14px] text-graphite">Read-only — Admin manages your salary structure.</p>
+        <h1 className="font-serif text-[38px] font-normal tracking-tight text-off-black">Payroll</h1>
+        <p className="mt-1.5 text-[15px] text-graphite">Read-only — Admin manages your salary structure.</p>
       </div>
 
       <Card>
@@ -50,9 +50,9 @@ export default function PayrollPage() {
           ) : !payrolls || payrolls.data.length === 0 ? (
             <EmptyState title="No payslips yet" />
           ) : (
-            <div className="flex flex-col divide-y divide-ash">
+            <div className="flex flex-col divide-y divide-line">
               {payrolls.data.map((p) => (
-                <div key={p.id} className="flex items-center justify-between py-4">
+                <div key={p.id} className="flex items-center justify-between gap-4 py-4">
                   <div>
                     <p className="text-[16px] text-off-black">
                       {MONTH_NAMES[p.month - 1]} {p.year}
@@ -63,8 +63,10 @@ export default function PayrollPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-serif text-[24px] font-normal text-off-black">{formatPaise(p.net)}</p>
-                    <p className="text-[12px] uppercase text-smoke">Net pay</p>
+                    <p className="font-serif text-[24px] font-normal tracking-tight tabular-nums text-off-black">
+                      {formatPaise(p.net)}
+                    </p>
+                    <p className="text-[12px] uppercase tracking-[0.04em] text-smoke">Net pay</p>
                   </div>
                 </div>
               ))}
@@ -79,8 +81,8 @@ export default function PayrollPage() {
 function Amount({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[12px] uppercase text-smoke">{label}</span>
-      <span className="text-[20px] text-off-black">{formatPaise(value)}</span>
+      <span className="text-[12px] uppercase tracking-[0.04em] text-smoke">{label}</span>
+      <span className="font-serif text-[20px] tracking-tight tabular-nums text-off-black">{formatPaise(value)}</span>
     </div>
   );
 }

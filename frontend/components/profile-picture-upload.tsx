@@ -54,7 +54,7 @@ export function ProfilePictureUpload({
 
   return (
     <div className="flex flex-col items-center gap-3 pb-2">
-      <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-ash bg-periwinkle-mist">
+      <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-line bg-periwinkle-mist/70 shadow-ambient ring-1 ring-inset ring-white/40">
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- authenticated blob URL, not a static asset
           <img src={previewUrl} alt="Profile" className="h-full w-full object-cover" />

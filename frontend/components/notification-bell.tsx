@@ -30,7 +30,7 @@ export function NotificationBell() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="relative flex h-10 w-10 items-center justify-center rounded-full border border-ash text-off-black transition-colors hover:bg-off-black/5"
+          className="relative flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-off-black transition-colors hover:border-ash hover:bg-off-black/5"
           aria-label="Notifications"
         >
           <motion.span animate={unreadCount > 0 ? { rotate: [0, -12, 10, -8, 0] } : {}} transition={{ duration: 0.6 }}>
@@ -57,7 +57,7 @@ export function NotificationBell() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <div className="flex items-center justify-between px-2 py-2">
-          <span className="text-[14px] font-medium uppercase text-off-black">Notifications</span>
+          <span className="text-[12px] font-medium uppercase tracking-[0.04em] text-graphite">Notifications</span>
           {unreadCount > 0 && (
             <Button variant="link" size="sm" onClick={() => markAllMutation.mutate()}>
               Mark all read
@@ -75,7 +75,7 @@ export function NotificationBell() {
                 key={n.id}
                 href={n.link ?? '#'}
                 onClick={() => !n.read && markReadMutation.mutate(n.id)}
-                className={`flex flex-col gap-1 rounded-2xl px-3 py-2 text-left hover:bg-off-black/5 ${
+                className={`flex flex-col gap-0.5 rounded-[14px] px-3 py-2.5 text-left transition-colors hover:bg-off-black/5 ${
                   n.read ? '' : 'bg-periwinkle-mist/40'
                 }`}
               >

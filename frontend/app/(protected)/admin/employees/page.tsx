@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -61,8 +62,8 @@ export default function AdminEmployeesPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-[40px] font-normal text-off-black">Employees</h1>
-          <p className="mt-2 text-[14px] text-graphite">{data?.meta.total ?? 0} total</p>
+          <h1 className="font-serif text-[38px] font-normal tracking-tight text-off-black">Employees</h1>
+          <p className="mt-1.5 text-[15px] text-graphite">{data?.meta.total ?? 0} total</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
@@ -111,7 +112,7 @@ export default function AdminEmployeesPage() {
         </Dialog>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3 rounded-[18px] border border-line bg-surface p-3">
         <Input
           placeholder="Search name, login ID or email…"
           value={search}
@@ -139,22 +140,26 @@ export default function AdminEmployeesPage() {
           ) : !data || data.data.length === 0 ? (
             <EmptyState title="No employees found" description="Try adjusting your search or filters." />
           ) : (
-            <div className="flex flex-col divide-y divide-ash">
+            <div className="flex flex-col divide-y divide-line">
               {data.data.map((emp) => (
                 <Link
                   key={emp.id}
                   href={`/admin/employees/${emp.id}`}
-                  className="flex items-center justify-between py-4 hover:bg-off-black/[0.02]"
+                  className="group -mx-3 flex items-center gap-4 rounded-[14px] px-3 py-4 transition-colors hover:bg-off-black/[0.03]"
                 >
-                  <div>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-periwinkle-mist/60 text-[13px] font-medium text-off-black">
+                    {`${emp.firstName?.[0] ?? ''}${emp.lastName?.[0] ?? ''}`.toUpperCase()}
+                  </span>
+                  <div className="min-w-0 flex-1">
                     <p className="text-[16px] text-off-black">
                       {emp.firstName} {emp.lastName}
                     </p>
-                    <p className="text-[12px] uppercase text-smoke">
+                    <p className="text-[12px] uppercase tracking-[0.04em] text-smoke">
                       {emp.loginId} · {emp.department ?? 'No department'}
                     </p>
                   </div>
                   <StatusBadge status={emp.employmentStatus} />
+                  <ArrowUpRight className="h-4 w-4 shrink-0 text-smoke opacity-0 transition-opacity group-hover:opacity-100" />
                 </Link>
               ))}
             </div>
