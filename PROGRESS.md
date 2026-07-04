@@ -130,6 +130,110 @@ forgot/login.
 - ⚠️ Employee sending an Admin-only field → 403 (explicit reject, not silent strip)
 - ⚠️ Soft delete revokes refresh tokens + soft-deletes User too
 
-## Phase 4 — Attendance module · ⬜ next
+## Phase 4 — Attendance module · ✅ COMPLETE (backend)
 
-## Phases 5–11 · ⬜ not started
+Built: check-in/out (409 on double check-in / checkout-without-checkin),
+server-computed `workedMinutes` + HALF_DAY/PRESENT threshold, daily/weekly/monthly
+own views (`lib/time.ts` org-timezone bucketing), Admin list w/ dept/date/employee/
+status filters + pagination, manual `mark-absent` (no cron — Section 2). Shared
+`resolveProfileId` extracted to `lib/profile.ts` (reused by leave/payroll below).
+Manually verified end-to-end via curl against the seeded DB (see Phase 5-7 note —
+automated Supertest coverage was explicitly descoped by the project owner in
+favor of feature velocity; documented as a known gap, not silently skipped).
+
+## Phase 5 — Leave module · ✅ COMPLETE (backend)
+
+Endpoints: `POST /leave` (apply) · `GET /leave/me` · `GET /leave/balance/me` ·
+`GET /leave` (admin, filtered) · `PATCH /leave/:id/review` (admin approve/reject
++ remarks) · `PATCH /leave/:id/cancel` · `GET /leave/:id` · `GET /leave/balance/:employeeId` (admin).
+
+- Overlap rejection against PENDING/APPROVED requests (409); insufficient
+  PAID/SICK balance rejected at apply-time (409) — UNPAID unlimited.
+- Balance deducted on approval, restored on cancel-of-not-yet-started-APPROVED
+  (see judgment call below); `LeaveBalance` rows auto-init per year on first
+  access (no annual rollover cron — same spirit as no-cron-auto-absent).
+- Approval syncs `Attendance` rows to `LEAVE` status across the date range
+  (skips days that already have a real check-in) — extra integration beyond the
+  literal spec, matching the SRS's "monthly calendar with markers" intent.
+- Notifications fired: LEAVE_SUBMITTED → all Admins, LEAVE_APPROVED/REJECTED →
+  employee.
+- ⚠️ **Judgment call (Section 14):** spec text "restore on rejection or
+  employee-cancel of a still-pending request" is a no-op under a pure
+  apply→pending→approve/reject state machine (nothing is deducted until
+  approval, so cancelling/rejecting a PENDING request has nothing to restore).
+  For the restore clause to mean anything, cancel is extended to also cover an
+  **APPROVED-but-not-yet-started** request (`startDate` in the future), which
+  does restore the deducted balance. Logged here per Section 14.
+
+## Phase 6 — Payroll module · ✅ COMPLETE (backend)
+
+Endpoints: `GET/PUT /payroll/salary/:employeeId` (Admin edits, Employee
+read-only — ownership enforced in service) · `POST /payroll/generate` (Admin) ·
+`GET /payroll` (admin, filtered) · `GET /payroll/me` · `GET /payroll/:id`.
+
+- ⚠️ **Endpoint-shape decision (flagged in Phase 0, decided here):**
+  `POST /payroll/generate` with **upsert semantics** — regenerating an
+  existing employee/month/year snapshot refreshes it from the current salary
+  structure rather than erroring. Chosen over `PUT /payroll/:id` because the
+  client doesn't know a payroll id until one exists; upsert-by-natural-key
+  (employee+month+year) is simpler for the Admin UI to call idempotently.
+- Rupees accepted over the wire, converted to integer paise server-side
+  (Section 2 — never store floats); `gross`/`net` computed server-side from the
+  salary structure snapshot at generation time.
+- Notifies the employee (PAYROLL_GENERATED) on generate.
+
+## Phase 7 — Notifications + File Upload · ✅ COMPLETE (backend)
+
+**Notifications:** `notification.service` (`notify`/`notifyAdmins` helpers used
+by leave/payroll/document services) + `GET /notifications` (paginated,
+`unreadOnly` filter, `unreadCount` badge) + `PATCH /notifications/:id/read` +
+`PATCH /notifications/read-all`. All Section 2 trigger points wired: leave
+submitted/approved/rejected, payroll generated, email verified (already fired
+in Phase 2's `auth.service`), document uploaded/rejected.
+
+**File Upload:** multer `memoryStorage` (buffer never touches disk until our
+own code validates it — makes the "422 before touching disk" rule
+unconditional, not dependent on multer's own error-path cleanup). Per-category
+constraints (PROFILE_PICTURE → image rules 5MB/jpg-png-webp; everything else →
+doc rules 10MB/pdf-jpg-png). Storage path
+`uploads/{employeeId}/{category}/{uuid}-{originalFilename}`. `Document` rows
+track status (PENDING/APPROVED/REJECTED); Admin review endpoint; ownership-
+checked download stream; soft delete (file retained on disk for audit, row
+hidden from reads).
+- ⚠️ **Trigger-recipient clarification (Section 14):** Section 2 literally reads
+  "Document uploaded/rejected → Admin" for both events. Read literally,
+  rejection notifying the same Admin who just rejected it is meaningless.
+  Implemented as: upload → notify Admins (review queue), reject → notify the
+  **employee** (so they know to re-upload) — consistent with the Leave
+  submitted→Admin / approved-rejected→employee pattern elsewhere in the same
+  section. Logged as a clarifying assumption, not a silent deviation.
+- Also verified end-to-end via curl (upload/reject/list/review), not Supertest
+  — see the Phase 4 testing note above.
+
+### Repo/doc discrepancy fixed this session
+On resume, `PROGRESS.md`/`TASK.md` said Phase 4 was "next" but the repo already
+had a committed, working (untested) attendance backend (commit `0a304e0`).
+Per instructions, repo > docs — this file is now corrected to match reality.
+Also fixed a real bug: `prisma/seed.ts` never loaded `.env`, so `npm run seed`
+failed on a clean clone (`ts-node`, unlike the `prisma` CLI, doesn't auto-read
+`.env`) — added `import 'dotenv/config'`.
+
+### Testing note (project-owner directive)
+Automated Supertest coverage for Phases 4-7 was explicitly descoped mid-session
+by the project owner in favor of implementation velocity (Phases 2-3's
+Supertest suites remain and stay green — 35/35). Every new endpoint above was
+manually verified end-to-end against the seeded Postgres instance (curl),
+including the RBAC/ownership/validation/notification paths. This is a real gap
+against `INSTRUCTIONS.md` Section 10's "Supertest per endpoint" requirement —
+flagged here explicitly rather than silently claiming test coverage that
+doesn't exist.
+
+## Execution-plan restructure (this session)
+
+Per explicit project-owner direction, the remaining execution plan was
+restructured from horizontal (all-backend-then-all-frontend, `INSTRUCTIONS.md`
+§11 Phases 8-11) to **vertical slices** — each slice ships one module's
+backend + frontend fully wired before the next starts. `INSTRUCTIONS.md` §11
+and `TASK.md` updated accordingly; decision logged in `CONTEXT.md`.
+
+## Phases 8+ (frontend, vertical slices) · 🚧 in progress — see TASK.md

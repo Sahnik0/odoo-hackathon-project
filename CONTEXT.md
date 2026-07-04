@@ -178,3 +178,157 @@ Never hard-deletes. All reads filter `deletedAt: null`.
 ≤100/sort/search) + `buildOrderBy` (allowlisted sort fields, safe fallback). Reused by
 every future list endpoint. `search` on employees spans name/loginId/email
 (case-insensitive). `meta` via `buildPageMeta`.
+
+---
+
+## Phase 4 — Attendance module
+
+**`lib/profile.ts` — shared `resolveProfileId(userId)`.** Extracted the
+"resolve caller's EmployeeProfile id" helper out of attendance.service so
+leave.service and payroll.service (Phase 5-6) reuse it instead of duplicating.
+
+**One row per employee per day via upsert, not create+check.** `checkIn`
+upserts on the `(employeeProfileId, date)` unique key; an existing row with a
+null `checkIn` (e.g. an Admin-marked ABSENT day) is overridable to PRESENT by
+a genuine check-in — the unique constraint is the day-slot, not "already has a
+row." Second check-in with a non-null `checkIn` → 409.
+
+**Half-day threshold.** `env.HALF_DAY_THRESHOLD_HOURS` (default 4) compared
+against server-computed `workedMinutes`; below → HALF_DAY, at/above → PRESENT.
+
+**View ranges are pure UTC arithmetic** (`lib/time.ts viewRange`) computed off
+the org-timezone calendar date, not runtime-tz-dependent — avoids drift between
+server TZ and `ORG_TIMEZONE` config.
+
+---
+
+## Phase 5 — Leave module
+
+**LeaveBalance auto-init per year, no rollover cron.** Balance rows are only
+seeded for an employee's join year (Phase 1 seed / employee.service.create).
+`leave.service.getOrInitBalance` lazily creates a year's row on first access
+with the admin-configurable defaults (`env.LEAVE_DEFAULT_PAID/SICK`, UNPAID
+unlimited) instead of 404ing — same "no cron, handle it at the edge" pattern
+as attendance's no-auto-absent rule.
+
+**Cancel extended to not-yet-started APPROVED leave (Section 14 judgment
+call).** The literal spec ("apply/view/cancel own") plus Section 2's "restore
+balance on rejection or employee-cancel of a still-pending request" is
+internally inconsistent under a strict pending→approved state machine:
+nothing is deducted until approval, so cancelling a PENDING request has
+nothing to restore. For the restore clause to have a real effect, `cancel` is
+allowed on PENDING (any time) **and** APPROVED-with-a-future-startDate (this
+does restore the deducted balance + removes the LEAVE attendance markers it
+added). Cancelling an already-started/completed APPROVED leave is rejected
+(409) — logged here, not silently assumed, per Section 14.
+
+**Approval syncs Attendance → LEAVE.** Beyond the literal Section 8 leave
+spec, but directly serves the original SRS's "monthly calendar with
+Present/Absent markers" intent (3.5.1). Implemented as an upsert per date in
+the approved range that **only creates** a row where none exists — never
+overwrites a real check-in/mark-absent record already on the books. Reversed
+symmetrically on cancel-of-approved (delete only pure LEAVE rows with no
+`checkIn`).
+
+**Overlap + balance checks happen at apply-time**, not review-time — rejecting
+an invalid request immediately (409) rather than accepting it and failing
+review is better UX and avoids balance math having to handle the review-time
+same edge cases twice.
+
+---
+
+## Phase 6 — Payroll module
+
+**Endpoint shape decided (flagged in Phase 0):** `POST /payroll/generate` with
+**upsert semantics** on the natural key `(employeeProfileId, month, year)`.
+Rejected `PUT /payroll/:id` — the Admin UI doesn't have a payroll id to PUT to
+until one exists for that employee/month, so upsert-by-natural-key is simpler
+to call idempotently ("generate July payroll for Priya" is naturally
+idempotent — re-running it just refreshes the snapshot from the current
+salary structure, which is desirable if the structure changed after an early
+generate).
+
+**Salary structure is one-to-one per employee** (matches the Prisma schema's
+`@unique` FK) — there's no history of past structures, only the current one +
+the frozen snapshot baked into each generated `Payroll` row at generation
+time. Changing salary structure never retroactively changes past payroll.
+
+**Employee read-only enforced in the service**, not just by omitting a PATCH
+route on the frontend — `GET /payroll/salary/:employeeId` and `GET
+/payroll/:id` both run through `assertCanAccess` (Admin bypasses, Employee
+restricted to own `userId`), and the mutating routes (`PUT .../salary/:id`,
+`POST /payroll/generate`) are `authorize('ADMIN')`-gated at the router level.
+
+---
+
+## Phase 7 — Notifications + File Upload
+
+**`notification.service` — `notify` / `notifyAdmins` helpers, no envelope
+formatting.** Plain Prisma writes; callers (leave/payroll/document services)
+fire these after their own transaction commits, not inside it — a
+notification failure must never roll back the business action that
+triggered it. (Contrast with `auth.service.verifyEmail`'s EMAIL_VERIFIED
+notification, which *is* inside the transaction since it's part of the same
+atomic state change, not a downstream side-effect.)
+
+**Document/reject notification recipient — clarified (Section 14).** Section
+2 literally lists "Document uploaded/rejected → Admin" for both. Notifying
+the *same* Admin who just rejected a document about their own rejection is
+meaningless. Implemented as: upload → `notifyAdmins` (populates the review
+queue), reject → notify the **employee** (so they know to re-upload) —
+consistent with how Leave's submitted→Admin / approved-or-rejected→employee
+split works elsewhere in the same section. Logged as a clarifying reading,
+not a silent deviation.
+
+**Upload validation happens entirely in application code before any disk
+write — `multer.memoryStorage()`, not `diskStorage`.** This makes "reject
+with 422 before touching disk" (Section 2) true unconditionally, rather than
+depending on multer's own error-path file cleanup. `assertValidUpload` checks
+mimetype + size against per-category limits (PROFILE_PICTURE → image rules;
+everything else → doc rules) before `document.service.upload` ever calls
+`fs.writeFile`. A `MulterError` (e.g. multer's own outer size cap tripping
+first) is now mapped to 422 in the centralized error handler rather than
+falling through to 500.
+
+**Document soft-delete retains the file on disk.** Only the `Document` row
+gets `deletedAt` (Section 5's soft-delete list); the underlying file is kept
+for audit/compliance rather than actually unlinked — no spec requirement to
+purge it, and irreversibly deleting the bytes on a soft-delete would
+contradict the "never hard-delete employee-linked records" principle in
+spirit.
+
+---
+
+## Execution-plan restructure — vertical slices (project-owner directive)
+
+Replaced `INSTRUCTIONS.md` §11 / `AGENTS.md`'s horizontal plan (Phases 0-7
+all-backend, then 8-11 all-frontend) with vertical slices: every remaining
+phase now delivers one module's backend **and** frontend, fully wired
+end-to-end, before the next module starts. New order (see `TASK.md` for the
+live checklist):
+
+1. Scaffolding + Docker skeleton (done, Phase 0)
+2. Prisma schema + migrations + seed (done, Phase 1)
+3. Auth (done backend; frontend — register→login→protected routes — next)
+4. Employee Profile (BE done; FE next)
+5. Attendance (BE done; FE next)
+6. Leave (BE done; FE next)
+7. Payroll (BE done; FE next)
+8. Notifications + File Upload (BE done; FE next)
+9. Cross-cutting UI polish across all modules
+10. Docs, Docker, README, final QA
+
+Rationale given: horizontal splitting means nothing is demoable/integration-
+tested until Phase 8+, and any backend API-shape mistake surfaces late. The
+backend for modules 3-8 above was already built horizontally in prior
+sessions before this directive arrived — rather than redo that work, it's
+being treated as "backend done, frontend pending" within each renumbered
+vertical slice, and the *frontend* build order from here on strictly follows
+slices 3→8 in order, each ending with real, wired, working pages before the
+next starts. The Design System Gate (previously "before Phase 8") is pulled
+forward into slice 3, since that's now the first slice touching the frontend.
+
+Also decided here, not deferred further: the OpenAPI/swagger-jsdoc docs
+mentioned in Section 3/13 will be authored incrementally per-slice (annotate
+each router as it's frontend-wired) rather than as a single Phase-11-only
+pass, so `/api/docs` isn't a last-minute scramble.

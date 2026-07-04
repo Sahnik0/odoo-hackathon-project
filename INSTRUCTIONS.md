@@ -213,22 +213,25 @@ Carried over from the original SRS with the Section 2 defaults applied:
 
 ## 11. Execution Plan & Definition of Done
 
-Work in this order. Do not start a phase until the previous phase's DoD is met and committed.
+**Restructured to vertical slices per explicit project-owner direction** (see
+`CONTEXT.md`, "Execution-plan restructure"). Originally horizontal (all
+backend phases, then all frontend phases) — now each phase after scaffolding/
+schema delivers one module's backend **and** frontend, fully wired end-to-end,
+before the next phase starts. Work in this order. Do not start a phase until
+the previous phase's DoD is met and committed.
 
 | Phase | Scope | Definition of Done |
 |---|---|---|
-| 0 | Scaffolding: repo structure, tooling, lint/format, docker skeleton, scaffold files created | Both frontend and backend boot empty; `docker-compose up` brings up Postgres + maildev cleanly |
-| 1 | Prisma schema, migrations, seed script | `prisma migrate dev` runs clean; seed produces 1 admin + 5+ employees with realistic data across all entities |
-| 2 | Auth module + tests | All 7 auth endpoints work end-to-end incl. real email delivery to maildev; Supertest suite green |
-| 3 | Employee profile + RBAC middleware | Field-level edit restrictions enforced server-side and tested, not just UI-hidden |
-| 4 | Attendance module | Check-in/out, all three view granularities, Admin filters all functional and tested |
-| 5 | Leave module | Balance tracking, overlap rejection, approve/reject flow, notifications fired |
-| 6 | Payroll module | Salary structure CRUD, payroll generation, employee read-only view enforced |
-| 7 | Notifications + File Upload modules | All trigger points fire correctly; upload constraints enforced and tested |
-| 8 | Frontend shell | Auth pages, protected layout, API client with refresh interceptor, routing skeleton |
-| 9 | Frontend feature pages | One per backend module, same order, wired to real endpoints |
-| 10 | Cross-cutting UI polish | Skeletons, empty states, toasts, confirm dialogs verified on every list/mutation |
-| 11 | Docs & packaging | OpenAPI docs live at `/api/docs`, README verified by following it from a clean clone, final Dockerfile build succeeds |
+| 1 | Scaffolding + Docker skeleton | Both frontend and backend boot empty; `docker-compose up` brings up Postgres + maildev cleanly |
+| 2 | Prisma schema + migrations + seed | `prisma migrate dev` runs clean; seed produces 1 admin + 5+ employees with realistic data across all entities |
+| 3 | Auth (backend + frontend, fully wired) | 7 endpoints work end-to-end incl. real email delivery; register→verify→login→protected-route→refresh→logout works in the browser against the real API; Design System Gate (tokens from `DESIGN.md` into `CONTEXT.md` + Tailwind/shadcn base) done here as the first frontend work |
+| 4 | Employee Profile (backend + frontend) | Field-level edit restrictions enforced server-side (not just UI-hidden); profile view/edit pages wired to real endpoints for both roles |
+| 5 | Attendance (backend + frontend) | Check-in/out, all three view granularities, Admin filters — functional in the UI against real endpoints |
+| 6 | Leave Management (backend + frontend) | Balance tracking, overlap rejection, approve/reject flow, notifications fired — apply/approve/reject/cancel usable end-to-end in the UI |
+| 7 | Payroll (backend + frontend) | Salary structure CRUD, payroll generation, employee read-only view enforced — usable end-to-end in the UI |
+| 8 | Notifications + File Upload (backend + frontend) | All trigger points fire correctly; upload constraints enforced; notification bell + upload UI wired to real endpoints |
+| 9 | Cross-cutting UI polish | Skeletons, empty states, toasts, confirm dialogs, pagination/search/sort/filter verified on every list/mutation across ALL modules |
+| 10 | Docs, Docker, README, final QA | OpenAPI docs live at `/api/docs`, README verified by following it from a clean clone, final Dockerfile build succeeds for all 4 compose services |
 
 After each phase: update `PROGRESS.md`, commit, and state explicitly which DoD items are met before proceeding.
 

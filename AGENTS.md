@@ -146,29 +146,30 @@ prisma/{schema.prisma,migrations,seed.ts}
 frontend/{app,components,hooks,lib,services,types,schemas}
 ```
 
-## Execution Plan (Section 11)
+## Execution Plan (Section 11 — restructured to vertical slices, see CONTEXT.md)
 
 | Phase | Scope |
 |---|---|
-| 0 | Scaffolding: structure, tooling, lint/format, docker skeleton, scaffold files |
-| 1 | Prisma schema, migrations, seed |
-| 2 | Auth module + tests |
-| 3 | Employee profile + RBAC middleware |
-| 4 | Attendance module |
-| 5 | Leave module |
-| 6 | Payroll module |
-| 7 | Notifications + File Upload |
-| 8 | Frontend shell (extract design system into CONTEXT.md FIRST) |
-| 9 | Frontend feature pages |
-| 10 | Cross-cutting UI polish |
-| 11 | Docs & packaging |
+| 1 | Scaffolding + Docker skeleton |
+| 2 | Prisma schema + migrations + seed |
+| 3 | Auth — backend + frontend, fully wired (Design System Gate happens here) |
+| 4 | Employee Profile — backend + frontend |
+| 5 | Attendance — backend + frontend |
+| 6 | Leave Management — backend + frontend |
+| 7 | Payroll — backend + frontend |
+| 8 | Notifications + File Upload — backend + frontend |
+| 9 | Cross-cutting UI polish (all modules) |
+| 10 | Docs, Docker, README, final QA |
 
-## Design System Gate (before Phase 8)
+Each phase now ships one module's backend AND frontend, fully integrated, before
+the next starts — not all backend then all frontend.
+
+## Design System Gate (folded into Phase 3, first frontend work)
 
 Extract a concrete design system from `DESIGN.md` into `CONTEXT.md`: color tokens
 (Tailwind values), type scale, spacing scale, button/card/input/nav patterns,
 signature layout conventions (radius, shadow depth, density). Build once as shared
-Tailwind config + shadcn/ui overrides in Phase 8. Every later frontend phase reuses
+Tailwind config + shadcn/ui overrides. Every later frontend phase reuses
 these tokens/components — never re-derive from `DESIGN.md` per page.
 
 ## When to Ask vs Assume (Section 14)
