@@ -7,6 +7,7 @@ import { env } from './config/env';
 import { logger } from './lib/logger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import healthRoutes from './routes/health';
+import authRoutes from './routes/auth.routes';
 
 // Assembles the Express app (no listen — see server.ts). Kept separate so
 // Supertest can import the app without binding a port.
@@ -37,6 +38,7 @@ export function createApp(): Express {
 
   // Routes (grow per phase).
   app.use('/', healthRoutes);
+  app.use('/auth', authRoutes);
 
   // 404 + centralized error formatting (must be last).
   app.use(notFoundHandler);

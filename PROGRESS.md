@@ -71,6 +71,40 @@ salaryStructures 7 · payrolls 5 · documents 2 · notifications 4
 - ⚠️ `DocumentStatus` + `NotificationType` enums added (needed for module triggers)
 - ⚠️ Verify/reset tokens stored hashed on `User` (no separate table)
 
-## Phase 2 — Auth module + tests · ⬜ next
+## Phase 2 — Auth module + tests · ✅ COMPLETE
 
-## Phases 3–11 · ⬜ not started
+### DoD — met
+- ✅ All 7 auth endpoints work end-to-end
+- ✅ Real email delivery to maildev (tests fetch + parse tokens from the inbox)
+- ✅ Supertest suite green — **18 tests**, happy + auth-fail + validation-fail per endpoint
+
+### Endpoints
+`POST /auth/register` · `/verify-email` · `/resend-verification` · `/login` ·
+`/refresh` · `/logout` · `/forgot-password` · `/reset-password`
+
+### Built
+- ✅ Services: `auth.service` (register/verify/resend/login/refresh/logout/forgot/reset),
+     `token.service` (JWT + rotating opaque refresh + family theft-detection),
+     `email.service` (Nodemailer → maildev)
+- ✅ Libs: `prisma` singleton, `password` (bcrypt 12), `crypto` (opaque token + sha256),
+     `asyncHandler`
+- ✅ Middleware: `authenticate`, `authorize(role)`, `validate` (Zod), `rateLimit`
+     (Section 2 limits, skipped in test)
+- ✅ Validators: `auth.validators` (Zod, to be mirrored on frontend)
+- ✅ Controller + routes wired into `app.ts`; refresh cookie httpOnly/strict/path=/auth
+- ✅ Test helpers: `test/db` (purge), `test/maildev` (inbox read + token extract)
+- ✅ Typecheck clean, eslint clean (no stray console), maildev healthcheck fixed
+
+### Verified behaviours
+Register→verify→login gate · access/refresh rotation · **reuse→family revoke** ·
+logout revoke · reset invalidates refresh tokens + changes password · enumeration-safe
+forgot/login.
+
+### Assumptions/decisions logged in CONTEXT.md
+- ⚠️ Verify/reset tokens hashed on `User` (no separate table)
+- ⚠️ `resend-verification` 429s on cooldown for known-unverified users (minor enum leak)
+- ⚠️ Refresh cookie `secure` only in production (dev is http://localhost)
+
+## Phase 3 — Employee profile + RBAC · ⬜ next
+
+## Phases 4–11 · ⬜ not started

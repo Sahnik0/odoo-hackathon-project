@@ -89,3 +89,54 @@ login IDs, leave balances (all 3 types × current year), salary structures, a we
 attendance (PRESENT/HALF_DAY/ABSENT), leave requests (approved+deducted / pending /
 rejected), June payroll for active employees, documents, notifications. Employment
 statuses include ACTIVE / ON_LEAVE / TERMINATED. Clean-then-seed = idempotent.
+
+---
+
+## Phase 2 — Auth module
+
+**Layering.** `routes → middleware (rateLimit, validate) → controller (thin: cookies +
+envelope) → service (business logic) → lib (prisma, password, crypto, token)`.
+Controllers never format errors or touch business rules; services throw typed
+`ApiError`; the centralized handler formats responses (Section 7).
+
+**Access vs refresh (Section 2).** Access = JWT (`sub`, `role`, `email`), 15m, sent
+as `Authorization: Bearer`. Refresh = opaque 256-bit random (NOT JWT), sha256-hashed
+at rest, delivered as an httpOnly/sameSite=strict cookie scoped to `path=/auth`.
+`secure` is on only in production (dev is http://localhost). Cookie name `refreshToken`.
+
+**Rotation + theft detection.** Each refresh call rotates: old token marked
+`revokedAt` + `replacedByTokenHash`, new token issued in the same `familyId`.
+Presenting an already-revoked token ⇒ reuse ⇒ the entire family is revoked
+(`token.service.rotateRefreshToken`). Verified by test (replay old → 401, then the
+valid successor → 401).
+
+**Token storage.** Only hashes stored. Email-verify + password-reset tokens are
+hashed columns on `User` (single-use; cleared after use). Reset invalidates all
+refresh tokens (`revokeAllRefreshTokens`). Resend has a 60s cooldown via
+`emailVerifyLastSentAt`.
+
+**Enumeration resistance.** `login` returns a generic 401 for both unknown email and
+wrong password; `forgot-password` and `resend-verification` return generic 200 for
+unknown/verified accounts (resend still 429s on cooldown for a known unverified user —
+accepted trade-off, logged).
+
+**Registration.** Always EMPLOYEE (Section 2). Reuses `nextLoginId()` from Phase 1;
+creates User+profile+login ID+leave balances in one transaction, then emails the
+verification link. `dateOfJoining = now`, join year drives login ID + balance year.
+
+**Rate limiting.** `express-rate-limit`: login 5/min, register 3/min, forgot 3/15min,
+plus a 100/min per-user `authenticatedLimiter` for later protected routes. Breaches
+funnel through the error envelope (429). **Skipped when `NODE_ENV=test`** so the
+integration suite isn't throttled.
+
+**Testing strategy.** Supertest against the in-process app (no port bind). A dedicated
+`authtest_` email prefix + `purgeUsers()` isolates tests from seed data and each other.
+Real emails are asserted + parsed for tokens via the maildev REST API (`src/test/maildev.ts`).
+18 tests: happy + auth-fail + validation-fail per endpoint, plus rotation/theft/reset.
+
+**Docker healthcheck fix.** maildev binds IPv4 `0.0.0.0:1080` only; the healthcheck's
+`localhost` resolved to IPv6 `::1` and reported unhealthy. Switched maildev + backend
+healthchecks to `127.0.0.1`.
+
+**Async errors.** Express 4 doesn't catch rejected async handlers → all controllers
+wrapped in `asyncHandler` so rejections reach the centralized error handler.

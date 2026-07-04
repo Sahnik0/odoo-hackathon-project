@@ -1,50 +1,45 @@
 # TASK.md — Current Phase Checklist
 
-## Phase 2 — Auth module + tests
+## Phase 3 — Employee profile + RBAC middleware
 
-**DoD:** All 7 auth endpoints work end-to-end incl. real email delivery to maildev;
-Supertest suite green.
+**DoD:** Field-level edit restrictions enforced server-side and tested, not just
+UI-hidden.
 
-### The 7 endpoints (Section 8 flow)
-- [ ] `POST /auth/register` → creates EMPLOYEE user + profile + login ID + leave
-      balances; sends verification email; rate-limit 3/min
-- [ ] `POST /auth/verify-email` (token) → marks verified, fires EMAIL_VERIFIED
-      notification; single-use, 24h expiry
-- [ ] `POST /auth/resend-verification` → 60s cooldown
-- [ ] `POST /auth/login` → blocked until verified; issues access JWT (15m) + refresh
-      cookie (httpOnly/secure/strict); rate-limit 5/min; supports Remember Me (30d)
-- [ ] `POST /auth/refresh` → rotation (new refresh, invalidate old); reuse of rotated
-      token revokes the whole family
-- [ ] `POST /auth/logout` → revokes current refresh token
-- [ ] `POST /auth/forgot-password` (rate 3/15min) + `POST /auth/reset-password`
-      (1h token, single-use, invalidates all refresh tokens)
+### Endpoints (Section 8)
+- [ ] `GET /employees` — Admin only; paginated/search/sort/filter (dept, status);
+      `meta` block
+- [ ] `GET /employees/:id` — Admin any; Employee only own (ownership check)
+- [ ] `GET /employees/me` — current user's profile (convenience)
+- [ ] `POST /employees` — Admin only; creates User(EMPLOYEE)+profile+login ID+balances
+      (admin-created accounts; may pre-verify or send verification — decide + log)
+- [ ] `PATCH /employees/:id` — **field-level RBAC**: Employee may edit only
+      `phone`, `address`, `profilePicture` on their own record; all other fields
+      Admin-only; Admin may edit any field on anyone
+- [ ] `DELETE /employees/:id` — Admin only; soft delete (`deletedAt`), never hard
+- [ ] `PATCH /employees/:id/status` — Admin only; employmentStatus (ACTIVE/ON_LEAVE/
+      TERMINATED) — or fold into PATCH; pick one + document
+
+### RBAC / ownership
+- [ ] `authorize(ADMIN)` on admin-only routes
+- [ ] Ownership helper: Employee restricted to own profile; Admin bypasses (Section 6)
+- [ ] Field-level guard: split editable field sets by role, enforced in the service
+      (reject/strip admin-only fields from employee requests → 403 or 422, decide)
 
 ### Building blocks
-- [ ] `services/auth.service.ts` — register/verify/login/refresh/logout/reset logic
-- [ ] `services/token.service.ts` — access JWT sign/verify, opaque refresh gen+hash,
-      rotation + family revoke
-- [ ] `services/email.service.ts` — Nodemailer → SMTP (maildev); verify + reset templates
-- [ ] `lib/password.ts` — bcrypt hash/compare (cost 12)
-- [ ] `lib/crypto.ts` — opaque token gen + hash (sha256) for refresh/verify/reset
-- [ ] `validators/auth.validators.ts` — Zod schemas (mirror to frontend later)
-- [ ] `middleware/authenticate.ts` — verify access token, attach user
-- [ ] `middleware/rateLimit.ts` — per-route limiters (Section 2 limits)
-- [ ] `middleware/validate.ts` — Zod body/query validation → 422 via error handler
-- [ ] `controllers/auth.controller.ts` + `routes/auth.routes.ts`
-- [ ] Wire routes + cookie config into `app.ts`
+- [ ] `services/employee.service.ts`
+- [ ] `validators/employee.validators.ts` (separate employee-self vs admin update schemas)
+- [ ] `controllers/employee.controller.ts` + `routes/employee.routes.ts`
+- [ ] Shared list-query helper (page/pageSize/sort/search/filter → Prisma args + meta)
+- [ ] Apply `authenticate` + `authenticatedLimiter` to protected routes
 
-### Security (Section 6)
-- [ ] Refresh token: opaque, hashed at rest, httpOnly/secure/sameSite=strict cookie
-- [ ] Access token: 15m, Bearer
-- [ ] Rotation + theft detection (family revoke on reuse)
-- [ ] Input sanitization on mutating routes
-- [ ] Generic messages on login/forgot (no user-enumeration leak)
-
-### Tests (Supertest — Section 10: happy + 1 auth-fail + 1 validation-fail min per endpoint)
-- [ ] register / verify / login / refresh / logout / forgot / reset suites
-- [ ] Real email lands in maildev (assert via maildev REST API on :1080)
-- [ ] Test DB strategy (transaction/cleanup) documented
+### Tests (Supertest)
+- [ ] Employee editing an allowed field on own profile → 200
+- [ ] Employee editing an admin-only field (e.g. department/salary link) → rejected
+- [ ] Employee accessing another employee's profile → 403
+- [ ] Admin editing any field on any employee → 200
+- [ ] List pagination/filter happy + auth-fail (employee hitting admin list → 403)
+- [ ] Validation-fail case
 
 ### Verify + close
-- [ ] Full auth flow green end-to-end against maildev
-- [ ] Update PROGRESS.md, append CONTEXT.md, rewrite TASK.md for Phase 3, commit
+- [ ] Field-level restriction proven server-side by tests
+- [ ] Update PROGRESS.md, append CONTEXT.md, rewrite TASK.md for Phase 4, commit

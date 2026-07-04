@@ -28,7 +28,9 @@ services:
       - "1080:1080" # web UI
       - "1025:1025" # SMTP
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:1080"]
+      # maildev binds IPv4 0.0.0.0 only — use 127.0.0.1, not localhost (which can
+      # resolve to IPv6 ::1 and refuse).
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:1080/"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -56,7 +58,7 @@ services:
     ports:
       - "4000:4000"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:4000/health"]
       interval: 10s
       timeout: 5s
       retries: 5
