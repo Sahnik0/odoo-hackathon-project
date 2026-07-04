@@ -16,23 +16,23 @@
  */
 @theme {
   /* Colors — palette */
-  --color-parchment: #f4f1ee;
-  --color-surface: #fbfaf8;
-  --color-surface-raised: #ffffff;
+  --color-parchment: #f6f3f1;
+  --color-surface: #f6f3f1;
+  --color-surface-raised: #fbfaf8;
   --color-lake-blue: #2b59d1;
-  --color-lake-blue-dark: #2247ab;
+  --color-lake-blue-dark: #1f42a1;
   --color-periwinkle-mist: #cfdaf5;
   --color-sky-blue: #a0b5eb;
   --color-mint: #a7fccd;
   --color-coral: #ff9473;
   --color-gold: #ecda98;
   --color-crimson: #f37a0a;
-  --color-off-black: #1c1b1a;
+  --color-off-black: #242424;
   --color-ink: #000000;
-  --color-graphite: #57544f;
-  --color-smoke: #8a8681;
-  --color-ash: #e4e0db;
-  --color-line: #ece8e3;
+  --color-graphite: #4e4d4d;
+  --color-smoke: #797776;
+  --color-ash: #cecac8;
+  --color-line: #cecac8;
 
   /* Typography — families */
   --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -81,23 +81,21 @@
   --spacing-72: 72px;
   --spacing-80: 80px;
 
-  /* Border radius — tightened for a sharper, more premium read. Cards drop from
-     40px to 24px; controls sit at 14px; buttons stay pill. */
-  --radius-card: 24px;
+  /* Border radius — standard cards at 40px, pills/buttons at 100px/9999px. */
+  --radius-card: 40px;
   --radius-control: 14px;
   --radius-pill: 9999px;
   --radius-button: 100px;
 
-  /* Shadow — a layered ambient/elevation scale. Cards get a barely-there lift;
-     hover and popovers step up. Warm-tinted to sit on parchment. */
-  --shadow-ambient: 0 1px 2px rgba(28, 27, 26, 0.04), 0 1px 1px rgba(28, 27, 26, 0.03);
-  --shadow-sm: 0 1px 2px rgba(28, 27, 26, 0.05), 0 2px 6px rgba(28, 27, 26, 0.04);
-  --shadow-md: 0 4px 12px rgba(28, 27, 26, 0.06), 0 2px 4px rgba(28, 27, 26, 0.04);
-  --shadow-lg: 0 12px 32px rgba(28, 27, 26, 0.1), 0 4px 8px rgba(28, 27, 26, 0.05);
-  --shadow-xl: 0 24px 60px rgba(28, 27, 26, 0.14), 0 8px 16px rgba(28, 27, 26, 0.06);
+  /* Shadow — a layered ambient/elevation scale. Warm-tinted. */
+  --shadow-ambient: 0 1px 2px rgba(36, 36, 36, 0.04), 0 1px 1px rgba(36, 36, 36, 0.03);
+  --shadow-sm: 0 1px 2px rgba(36, 36, 36, 0.05), 0 2px 6px rgba(36, 36, 36, 0.04);
+  --shadow-md: 0 4px 12px rgba(36, 36, 36, 0.06), 0 2px 4px rgba(36, 36, 36, 0.04);
+  --shadow-lg: 0 12px 32px rgba(36, 36, 36, 0.1), 0 4px 8px rgba(36, 36, 36, 0.05);
+  --shadow-xl: 0 24px 60px rgba(36, 36, 36, 0.14), 0 8px 16px rgba(36, 36, 36, 0.06);
 
   /* Layout */
-  --page-max-width: 1200px;
+  --page-max-width: 1432px;
 
   /* Easing */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
