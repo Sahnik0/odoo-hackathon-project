@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+/*
+ * Phase 0: base Tailwind only.
+ * The full design system (color tokens, type scale, spacing, component overrides)
+ * is extracted from DESIGN.md into CONTEXT.md and built here ONCE in Phase 8 via a
+ * `@theme` block. Do not add design tokens before the Phase 8 gate.
+ */

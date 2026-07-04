@@ -1,0 +1,13 @@
+// HRMS Prisma schema.
+// Phase 0: datasource + generator only — enables `prisma generate` in the build.
+// Phase 1 fills in the full data model (Section 5). Do not add models here until
+// Phase 1; treat schema changes after Phase 1 as expensive (Section 5).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
