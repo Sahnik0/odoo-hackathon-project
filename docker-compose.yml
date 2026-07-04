@@ -1,0 +1,80 @@
+# HRMS dev stack: postgres + maildev (dev SMTP catcher) + backend + frontend.
+# Backend waits on postgres healthcheck before booting (migrations run on start).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hrms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hrms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hrms}
+      POSTGRES_DB: ${POSTGRES_DB:-hrms}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hrms} -d ${POSTGRES_DB:-hrms}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  maildev:
+    image: maildev/maildev:2.1.0
+    container_name: hrms-maildev
+    restart: unless-stopped
+    ports:
+      - "1080:1080" # web UI
+      - "1025:1025" # SMTP
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:1080"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hrms-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      maildev:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hrms}:${POSTGRES_PASSWORD:-hrms}@postgres:5432/${POSTGRES_DB:-hrms}?schema=public
+      SMTP_HOST: maildev
+      SMTP_PORT: 1025
+      CORS_ORIGIN: http://localhost:3000
+    env_file:
+      - ./backend/.env
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hrms-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

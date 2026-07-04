@@ -1,0 +1,29 @@
+import type { Response } from 'express';
+
+// Single success envelope (Section 7). Every controller returns through these.
+export interface PageMeta {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+export function ok<T>(res: Response, data: T, meta?: PageMeta) {
+  return res.status(200).json({ success: true, data, ...(meta ? { meta } : {}) });
+}
+
+export function created<T>(res: Response, data: T) {
+  return res.status(201).json({ success: true, data });
+}
+
+export function noContent(res: Response) {
+  return res.status(204).send();
+}
+
+export function list<T>(res: Response, data: T[], meta: PageMeta) {
+  return res.status(200).json({ success: true, data, meta });
+}
+
+export function buildPageMeta(page: number, pageSize: number, total: number): PageMeta {
+  return { page, pageSize, total, totalPages: Math.max(1, Math.ceil(total / pageSize)) };
+}
