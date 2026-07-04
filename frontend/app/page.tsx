@@ -13,7 +13,6 @@ import {
   Zap,
   BellRing,
   Building2,
-  Linkedin,
   X,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
@@ -108,7 +107,11 @@ export default function LandingPage() {
   }, [user, isLoading, router]);
 
   return (
-    <main className="min-h-screen bg-parchment">
+    <main className="relative min-h-screen overflow-hidden bg-parchment">
+      {/* Ambient corner washes matching auth pages */}
+      <div className="pointer-events-none fixed -left-40 -top-40 h-96 w-96 rounded-full bg-periwinkle-mist/50 blur-3xl" />
+      <div className="pointer-events-none fixed -bottom-40 -right-40 h-96 w-96 rounded-full bg-mint/20 blur-3xl" />
+
       {announcementOpen && (
         <div className="flex w-full items-center justify-center gap-4 bg-off-black px-4 py-2.5 text-center">
           <p className="text-[13px] text-parchment">
@@ -131,7 +134,7 @@ export default function LandingPage() {
         </div>
       )}
 
-      <header className="sticky top-0 z-40 border-b border-line/70 bg-parchment/80 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-line/70 bg-transparent backdrop-blur-md">
         <div className="mx-auto flex h-20 max-w-[var(--page-max-width)] items-center justify-center gap-8 px-6">
           <Link href="/" className="absolute left-6">
             <Logo />
@@ -297,74 +300,6 @@ export default function LandingPage() {
         </RevealGroup>
       </section>
 
-      {/* Dashboard Preview Section */}
-      <section className="mx-auto max-w-[var(--page-max-width)] px-6 pb-32">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="grid grid-cols-1 gap-0 overflow-hidden rounded-[32px] border border-line bg-gradient-to-br from-periwinkle-mist/50 via-periwinkle-mist/30 to-transparent shadow-lg md:grid-cols-2"
-        >
-          <div className="flex flex-col justify-center gap-6 p-12 md:p-16">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-            >
-              <h2 className="font-serif text-[38px] font-normal leading-[1.2] tracking-[-0.03em] text-off-black sm:text-[46px]">
-                Everything in one dashboard
-              </h2>
-            </motion.div>
-
-            <motion.p
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="max-w-[460px] text-[16px] leading-[1.7] text-graphite"
-            >
-              Employees see their profile, attendance and leave balance the moment they log in. Admins get a
-              live view across the whole organization — no spreadsheets, no email chains.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-            >
-              <Button asChild variant="default" className="w-fit">
-                <Link href="/register">Explore the dashboard ▸</Link>
-              </Button>
-            </motion.div>
-          </div>
-
-          <div className="relative flex flex-col items-start justify-center gap-4 bg-white/40 p-12 backdrop-blur-sm md:p-16">
-            <RevealGroup className="flex w-full flex-col gap-4">
-              {[
-                { t: 'Priya Sharma — checked in at 9:12 AM', d: 'bg-mint' },
-                { t: 'Leave request from Arjun — pending review', d: 'bg-gold' },
-                { t: 'Payroll generated for Engineering — 42 employees', d: 'bg-lake-blue' },
-                { t: 'Document uploaded — awaiting approval', d: 'bg-coral' },
-              ].map((line) => (
-                <RevealItem key={line.t}>
-                  <motion.div
-                    whileHover={{ x: 4 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex w-full items-center gap-4 rounded-[16px] border border-line/50 bg-white/90 px-5 py-4 shadow-sm backdrop-blur-sm transition-all hover:border-line hover:shadow-md"
-                  >
-                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${line.d}`} />
-                    <span className="text-[14px] leading-relaxed text-off-black">{line.t}</span>
-                  </motion.div>
-                </RevealItem>
-              ))}
-            </RevealGroup>
-          </div>
-        </motion.div>
-      </section>
-
       {/* Why Choose Section */}
       <section id="why-us" className="mx-auto max-w-[var(--page-max-width)] px-6 pb-32">
         <motion.div
@@ -493,92 +428,68 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      <footer className="border-t border-ash">
-        <div className="mx-auto grid max-w-[var(--page-max-width)] grid-cols-2 gap-8 px-6 py-16 sm:grid-cols-4">
-          <div className="col-span-2 flex flex-col gap-4 sm:col-span-1">
-            <Logo />
-            <p className="text-[12px] uppercase tracking-tight text-smoke">Follow us on</p>
-            <Linkedin size={18} className="text-off-black" />
-          </div>
-          <FooterColumn
-            title="Modules"
-            links={[
-              { label: 'Employee profile', href: '/register' },
-              { label: 'Attendance', href: '/register' },
-              { label: 'Leave management', href: '/register' },
-              { label: 'Payroll', href: '/register' },
-            ]}
-          />
-          <FooterColumn
-            title="Company"
-            links={[
-              { label: 'About', href: '#' },
-              { label: 'Contact', href: '#' },
-            ]}
-          />
-          <FooterColumn
-            title="Account"
-            links={[
-              { label: 'Login', href: '/login' },
-              { label: 'Register', href: '/register' },
-            ]}
-          />
-        </div>
-        <div className="mx-auto flex max-w-[var(--page-max-width)] items-center justify-between px-6 py-8 text-[12px] uppercase text-smoke">
-          <span>HRMS © {new Date().getFullYear()}</span>
-          <span>Odoo India</span>
-        </div>
-      </footer>
+      <footer className="relative border-t border-line/50 bg-surface/30 backdrop-blur-sm">
+        <div className="mx-auto max-w-[var(--page-max-width)] px-6 py-20">
+          <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="flex flex-col gap-6">
+              <Logo />
+              <p className="max-w-[280px] text-[14px] leading-relaxed text-graphite">
+                Every workday, perfectly aligned. Modern HR management for growing teams.
+              </p>
+            </div>
 
-      <footer className="border-t border-ash">
-        <div className="mx-auto grid max-w-[var(--page-max-width)] grid-cols-2 gap-8 px-6 py-16 sm:grid-cols-4">
-          <div className="col-span-2 flex flex-col gap-4 sm:col-span-1">
-            <Logo />
-            <p className="text-[12px] uppercase tracking-tight text-smoke">Follow us on</p>
-            <Linkedin size={18} className="text-off-black" />
+            <div className="flex flex-col gap-4">
+              <h3 className="font-serif text-[18px] font-normal text-off-black">Modules</h3>
+              <div className="flex flex-col gap-3">
+                <Link href="/register" className="text-[14px] text-graphite transition-colors hover:text-off-black">
+                  Employee profile
+                </Link>
+                <Link href="/register" className="text-[14px] text-graphite transition-colors hover:text-off-black">
+                  Attendance
+                </Link>
+                <Link href="/register" className="text-[14px] text-graphite transition-colors hover:text-off-black">
+                  Leave management
+                </Link>
+                <Link href="/register" className="text-[14px] text-graphite transition-colors hover:text-off-black">
+                  Payroll
+                </Link>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <h3 className="font-serif text-[18px] font-normal text-off-black">Company</h3>
+              <div className="flex flex-col gap-3">
+                <Link href="#" className="text-[14px] text-graphite transition-colors hover:text-off-black">
+                  About
+                </Link>
+                <Link href="#" className="text-[14px] text-graphite transition-colors hover:text-off-black">
+                  Contact
+                </Link>
+                <Link href="#" className="text-[14px] text-graphite transition-colors hover:text-off-black">
+                  Careers
+                </Link>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <h3 className="font-serif text-[18px] font-normal text-off-black">Account</h3>
+              <div className="flex flex-col gap-3">
+                <Link href="/login" className="text-[14px] text-graphite transition-colors hover:text-off-black">
+                  Login
+                </Link>
+                <Link href="/register" className="text-[14px] text-graphite transition-colors hover:text-off-black">
+                  Register
+                </Link>
+              </div>
+            </div>
           </div>
-          <FooterColumn
-            title="Modules"
-            links={[
-              { label: 'Employee profile', href: '/register' },
-              { label: 'Attendance', href: '/register' },
-              { label: 'Leave management', href: '/register' },
-              { label: 'Payroll', href: '/register' },
-            ]}
-          />
-          <FooterColumn
-            title="Company"
-            links={[
-              { label: 'About', href: '#' },
-              { label: 'Contact', href: '#' },
-            ]}
-          />
-          <FooterColumn
-            title="Account"
-            links={[
-              { label: 'Login', href: '/login' },
-              { label: 'Register', href: '/register' },
-            ]}
-          />
-        </div>
-        <div className="mx-auto flex max-w-[var(--page-max-width)] items-center justify-between px-6 py-8 text-[12px] uppercase text-smoke">
-          <span>HRMS © {new Date().getFullYear()}</span>
-          <span>Odoo India</span>
+
+          <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-line/50 pt-8 sm:flex-row">
+            <p className="text-[13px] text-smoke">© {new Date().getFullYear()} HRMS. All rights reserved.</p>
+            <p className="text-[13px] text-smoke">Built with care by Odoo India</p>
+          </div>
         </div>
       </footer>
     </main>
-  );
-}
-
-function FooterColumn({ title, links }: { title: string; links: { label: string; href: string }[] }) {
-  return (
-    <div className="flex flex-col gap-3">
-      <span className="text-[12px] uppercase tracking-tight text-smoke">{title}</span>
-      {links.map((l) => (
-        <Link key={l.label} href={l.href} className="text-[14px] text-off-black hover:text-lake-blue">
-          {l.label}
-        </Link>
-      ))}
-    </div>
   );
 }
