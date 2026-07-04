@@ -13,8 +13,19 @@ import { useAuth } from '@/contexts/auth-context';
 import { apiErrorMessage } from '@/lib/axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { FieldError } from '@/components/ui/field-error';
+
+// Normal-case label — overrides design-system uppercase default
+function FL({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className="text-[12px] font-medium normal-case tracking-normal text-graphite"
+    >
+      {children}
+    </label>
+  );
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,7 +46,6 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await login(values);
-      // Always go to role selection — the user picks their context every session
       router.push('/select-role');
     } catch (err) {
       toast.error(apiErrorMessage(err));
@@ -49,10 +59,11 @@ export default function LoginPage() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-full rounded-[28px] border border-line bg-surface p-8 shadow-xl backdrop-blur-sm"
+      className="mx-auto w-full max-w-[440px] rounded-[28px] border border-line bg-surface p-7 shadow-xl backdrop-blur-sm"
     >
-      <div className="mb-8">
-        <h1 className="font-serif text-[26px] font-normal tracking-tight text-off-black">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="font-serif text-[22px] font-normal tracking-tight text-off-black">
           Welcome back
         </h1>
         <p className="mt-1 text-[13px] text-graphite">
@@ -60,32 +71,28 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)} aria-label="Login form">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} aria-label="Login form">
         {/* Email / Login ID */}
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email" className="text-[13px] font-medium text-off-black">
-            Login ID or Email
-          </Label>
+        <div className="flex flex-col gap-1">
+          <FL htmlFor="email">Login ID or Email</FL>
           <Input
             id="email"
             type="email"
-            placeholder="e.g. OIJODO20250001 or john@company.com"
+            placeholder="OIJODO20250001 or john@company.com"
             autoComplete="email"
             {...register('email')}
-            className="h-11"
+            className="h-10"
           />
           <FieldError message={errors.email?.message} />
         </div>
 
         {/* Password */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password" className="text-[13px] font-medium text-off-black">
-              Password
-            </Label>
+            <FL htmlFor="password">Password</FL>
             <Link
               href="/forgot-password"
-              className="text-[12px] text-graphite transition-colors hover:text-lake-blue"
+              className="text-[11px] text-smoke transition-colors hover:text-lake-blue"
             >
               Forgot password?
             </Link>
@@ -97,15 +104,15 @@ export default function LoginPage() {
               placeholder="Enter your password"
               autoComplete="current-password"
               {...register('password')}
-              className="h-11 pr-11"
+              className="h-10 pr-10"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-smoke hover:text-off-black transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-smoke transition-colors hover:text-off-black"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
           <FieldError message={errors.password?.message} />
@@ -115,13 +122,13 @@ export default function LoginPage() {
           type="submit"
           variant="primary"
           disabled={isSubmitting}
-          className="mt-2 h-11 w-full"
+          className="mt-1 h-10 w-full"
         >
           {isSubmitting ? 'Signing in…' : 'Sign In'}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-[13px] text-graphite">
+      <p className="mt-5 text-center text-[12px] text-graphite">
         Don&apos;t have an account?{' '}
         <Link href="/register" className="font-medium text-off-black transition-colors hover:text-lake-blue">
           Sign Up
