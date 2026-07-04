@@ -40,3 +40,19 @@ export function viewRange(
     lte: new Date(Date.UTC(y, m + 1, 0)),
   };
 }
+
+/** Inclusive calendar-day count between two @db.Date values (Section 2: leave
+ *  duration = inclusive days, no weekend/holiday exclusion). */
+export function inclusiveDayCount(start: Date, end: Date): number {
+  return Math.round((end.getTime() - start.getTime()) / DAY_MS) + 1;
+}
+
+/** Every UTC-midnight date-only Date from start to end, inclusive. Used to sync
+ *  attendance LEAVE markers across an approved leave's date range. */
+export function eachDateInclusive(start: Date, end: Date): Date[] {
+  const dates: Date[] = [];
+  for (let t = start.getTime(); t <= end.getTime(); t += DAY_MS) {
+    dates.push(new Date(t));
+  }
+  return dates;
+}

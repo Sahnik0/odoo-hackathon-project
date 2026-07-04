@@ -10,6 +10,10 @@ import healthRoutes from './routes/health';
 import authRoutes from './routes/auth.routes';
 import employeeRoutes from './routes/employee.routes';
 import attendanceRoutes from './routes/attendance.routes';
+import leaveRoutes from './routes/leave.routes';
+import payrollRoutes from './routes/payroll.routes';
+import notificationRoutes from './routes/notification.routes';
+import documentRoutes from './routes/document.routes';
 
 // Assembles the Express app (no listen — see server.ts). Kept separate so
 // Supertest can import the app without binding a port.
@@ -43,6 +47,10 @@ export function createApp(): Express {
   app.use('/auth', authRoutes);
   app.use('/employees', employeeRoutes);
   app.use('/attendance', attendanceRoutes);
+  app.use('/leave', leaveRoutes);
+  app.use('/payroll', payrollRoutes);
+  app.use('/notifications', notificationRoutes);
+  app.use('/documents', documentRoutes);
 
   // 404 + centralized error formatting (must be last).
   app.use(notFoundHandler);

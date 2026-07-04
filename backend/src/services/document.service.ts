@@ -68,7 +68,7 @@ export async function upload(
   file: Express.Multer.File,
   uploadedById: string,
 ) {
-  const profile = await loadProfileOr404(employeeProfileId);
+  await loadProfileOr404(employeeProfileId); // 404s before writing anything if the employee doesn't exist
 
   const safeName = path.basename(file.originalname).replace(/[^\w.\-]/g, '_');
   const storageRelPath = path.join(employeeProfileId, category, `${uuid()}-${safeName}`);
@@ -94,7 +94,7 @@ export async function upload(
   if (category === 'PROFILE_PICTURE') {
     await prisma.employeeProfile.update({
       where: { id: employeeProfileId },
-      data: { profilePicture: storageRelPath },
+      data: { profilePicture: document.storagePath },
     });
   }
 
