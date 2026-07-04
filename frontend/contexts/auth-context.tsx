@@ -53,8 +53,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function updateRole(role: 'EMPLOYEE' | 'ADMIN') {
-    await setRoleRequest(role);
-    setUser((prev) => prev ? { ...prev, role } : prev);
+    const result = await setRoleRequest(role);
+    setAccessToken(result.accessToken);
+    setUser(result.user);
   }
 
   return (

@@ -186,11 +186,12 @@ Seeding the database cleans existing entries and populates the database with 1 A
 1. **Registration:** Users self-register on the `/register` page by providing their name, email, password, and optional Company Name & Phone.
 2. **Email Verification:** A verification link is sent via SMTP (catchable in development via **maildev** at http://localhost:1080).
 3. **Verification & Login:** Clicking the link verifies the email, allowing the user to log in.
-4. **Role Selection:** On first-time login, the user selects their role (`ADMIN` or `EMPLOYEE`) at `/select-role`.
-5. **Session Activation:** Once selected, the user is redirected to the appropriate dashboard (`/admin/dashboard` or `/dashboard`) and will not be prompted for role selection again.
+4. **Role Selection & Session Sync:** On first-time login, the user selects their role (`ADMIN` or `EMPLOYEE`) at `/select-role`. The backend updates the database, signs and re-issues a new JWT access token and rotating refresh token with the updated role, and sends them back to the client.
+5. **Session Activation:** The frontend context immediately absorbs the new tokens (updating in-memory state and cookies) and redirects the user to the appropriate dashboard (`/admin/dashboard` or `/dashboard`). Subsequent logins bypass role selection and route directly to their dashboard.
 
 ### 2. Data Synchronization (Admins and Employees)
 * **Company name propagation:** The `companyName` supplied during registration is persisted in the `EmployeeProfile` model.
+* **Self-Service & Admin Forms:** Bidirectional updates are supported: employees can manage their own `companyName` on their self-service profile page, and HR admins can edit it from the employee details page.
 * **HR Admin Visibility:** Self-registered profiles are instantly visible in the HR Admin dashboard employee roster and directory list.
 * **Unified Fallback:** If an employee profile lacks a designated `department`, the interface automatically falls back to displaying their registered `companyName` (e.g., `OIRAKU20200001 · Acme Corp` instead of `No department`), maintaining seamless visual synchronization.
 
@@ -249,7 +250,7 @@ Seeding the database cleans existing entries and populates the database with 1 A
 1. User registers with name, email, and password.
 2. A verification email is sent via SMTP (maildev in dev — check http://localhost:1080).
 3. User clicks the link in the email to verify their account.
-4. On first login after registration, the user picks a role (Employee or HR/Admin) on the select-role page. Seeded demo users already have roles assigned and skip this step.
-5. Login issues a short-lived JWT access token and a rotating opaque refresh token (stored in an httpOnly cookie).
+4. On first login after registration, the user picks a role (Employee or HR/Admin) on the select-role page. The backend updates the role and immediately re-issues a new JWT access token and rotating refresh token to prevent any authorization/permissions sync issues. Seeded demo users already have roles assigned and skip this step.
+5. The login and role-selection endpoints issue a short-lived JWT access token and a rotating opaque refresh token (stored in an httpOnly cookie).
 6. The refresh token is rotated on every silent refresh. Old tokens are invalidated immediately.
 7. Password reset follows the same email-link pattern with a 1-hour expiry.

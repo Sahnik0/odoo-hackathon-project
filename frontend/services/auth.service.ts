@@ -63,6 +63,6 @@ export async function resetPasswordRequest(token: string, password: string) {
 }
 
 export async function setRoleRequest(role: 'EMPLOYEE' | 'ADMIN') {
-  const res = await api.post<ApiSuccess<{ role: string; message: string }>>('/auth/set-role', { role });
+  const res = await api.post<ApiSuccess<LoginResponse>>('/auth/set-role', { role });
   return res.data.data;
 }

@@ -82,6 +82,11 @@ export const setRole = asyncHandler(async (req, res) => {
   if (role !== 'EMPLOYEE' && role !== 'ADMIN') {
     throw ApiError.badRequest('Invalid role. Must be EMPLOYEE or ADMIN.');
   }
-  await authService.setRole(userId, role);
-  ok(res, { role, message: 'Role updated successfully.' });
+  const result = await authService.setRoleAndReissueTokens(userId, role, refreshContext(req));
+  setRefreshCookie(res, result.refresh.raw, result.refresh.expiresAt);
+  ok(res, {
+    accessToken: result.accessToken,
+    user: result.user,
+    message: 'Role updated successfully.',
+  });
 });

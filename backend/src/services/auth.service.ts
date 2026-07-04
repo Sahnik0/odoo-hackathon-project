@@ -258,7 +258,19 @@ export async function resetPassword(rawToken: string, newPassword: string): Prom
   await revokeAllRefreshTokens(user.id);
 }
 
-/** Set role — called once after first login from the role-selection screen. */
-export async function setRole(userId: string, role: 'EMPLOYEE' | 'ADMIN'): Promise<void> {
-  await prisma.user.update({ where: { id: userId }, data: { role } });
+/** Set role — called once after first login from the role-selection screen.
+ * Reissues access and refresh tokens so the client role change is reflected immediately. */
+export async function setRoleAndReissueTokens(
+  userId: string,
+  role: 'EMPLOYEE' | 'ADMIN',
+  ctx: RefreshContext = {},
+): Promise<LoginResult> {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { role },
+  });
+
+  const accessToken = signAccessToken({ sub: user.id, role: user.role, email: user.email });
+  const refresh = await issueRefreshToken(user.id, false, ctx);
+  return { accessToken, refresh, user: { id: user.id, email: user.email, role: user.role } };
 }

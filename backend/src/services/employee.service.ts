@@ -161,7 +161,7 @@ export async function update(id: string, input: UpdateEmployeeInput, requester: 
     );
     if (attemptedAdminFields.length > 0) {
       throw ApiError.forbidden(
-        `You may only edit: phone, address, profilePicture. Blocked: ${attemptedAdminFields.join(', ')}`,
+        `You may only edit: phone, address, profilePicture, companyName. Blocked: ${attemptedAdminFields.join(', ')}`,
       );
     }
   }

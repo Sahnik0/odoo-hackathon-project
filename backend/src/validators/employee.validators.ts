@@ -3,7 +3,7 @@ import { paginationSchema } from './common';
 
 // Fields an Employee may edit on their OWN profile (Section 8). Everything else is
 // Admin-only, enforced server-side in the service.
-export const SELF_EDITABLE_FIELDS = ['phone', 'address', 'profilePicture'] as const;
+export const SELF_EDITABLE_FIELDS = ['phone', 'address', 'profilePicture', 'companyName'] as const;
 export const ADMIN_ONLY_FIELDS = [
   'firstName',
   'lastName',
