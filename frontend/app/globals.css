@@ -1,8 +1,101 @@
 @import 'tailwindcss';
 
 /*
- * Phase 0: base Tailwind only.
- * The full design system (color tokens, type scale, spacing, component overrides)
- * is extracted from DESIGN.md into CONTEXT.md and built here ONCE in Phase 8 via a
- * `@theme` block. Do not add design tokens before the Phase 8 gate.
+ * Design system extracted from DESIGN.md (Phase 3 gate — see CONTEXT.md
+ * "Design System Gate" for the extraction notes). DESIGN.md is look-only
+ * (AGENTS.md Prime Directive #2) — behavior/copy/structure never come from it.
+ * Substituted Untitled Serif/ABC Diatype Mono/Untitled Sans with the closest
+ * free equivalents (Georgia-family serif stack, ui-monospace stack) since the
+ * named fonts aren't licensed/available here.
  */
+@theme {
+  /* Colors */
+  --color-parchment: #f6f3f1;
+  --color-lake-blue: #2b59d1;
+  --color-periwinkle-mist: #cfdaf5;
+  --color-sky-blue: #a0b5eb;
+  --color-mint: #a7fccd;
+  --color-coral: #ff9473;
+  --color-gold: #ecda98;
+  --color-crimson: #f37a0a;
+  --color-off-black: #242424;
+  --color-ink: #000000;
+  --color-graphite: #4e4d4d;
+  --color-smoke: #797776;
+  --color-ash: #cecac8;
+
+  /* Typography — families */
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-serif: Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Typography — scale (Tailwind v4 text-* utilities pick these up) */
+  --text-caption: 12px;
+  --text-caption--line-height: 1.2;
+  --text-caption--letter-spacing: -0.033em;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 1.35;
+  --text-body-sm--letter-spacing: -0.028em;
+  --text-body: 16px;
+  --text-body--line-height: 1.35;
+  --text-body--letter-spacing: -0.025em;
+  --text-label: 18px;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: -0.022em;
+  --text-body-lg: 20px;
+  --text-body-lg--line-height: 1.35;
+  --text-body-lg--letter-spacing: -0.02em;
+  --text-subheading: 24px;
+  --text-subheading--line-height: 1.2;
+  --text-subheading--letter-spacing: -0.02em;
+  --text-heading-sm: 32px;
+  --text-heading-sm--line-height: 1.2;
+  --text-heading-sm--letter-spacing: -0.02em;
+  --text-heading: 40px;
+  --text-heading--line-height: 1.2;
+  --text-heading--letter-spacing: -0.02em;
+  --text-heading-lg: 48px;
+  --text-heading-lg--line-height: 1.2;
+  --text-heading-lg--letter-spacing: -0.02em;
+  --text-display: 80px;
+  --text-display--line-height: 1.2;
+  --text-display--letter-spacing: -0.02em;
+
+  /* Spacing */
+  --spacing-8: 8px;
+  --spacing-16: 16px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-64: 64px;
+  --spacing-72: 72px;
+  --spacing-80: 80px;
+
+  /* Border radius — pill-and-soft-rect system (DESIGN.md Don'ts: never below
+     16px on cards, never below 100px on buttons). */
+  --radius-card: 40px;
+  --radius-pill: 9999px;
+  --radius-button: 100px;
+
+  /* Shadow — one subtle ambient level; DESIGN.md forbids drop shadows on
+     cards (borders + surface contrast instead). Kept for non-card popovers. */
+  --shadow-ambient: rgba(0, 0, 0, 0.1) 0px 0px 10px 0px;
+
+  /* Layout */
+  --page-max-width: 1432px;
+}
+
+body {
+  background-color: var(--color-parchment);
+  color: var(--color-off-black);
+  font-family: var(--font-mono);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}

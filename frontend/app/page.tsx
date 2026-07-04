@@ -1,11 +1,21 @@
-// Phase 0 placeholder — proves the frontend boots. Real routes land in Phase 8+.
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context';
+
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-8">
-      <h1 className="text-2xl">HRMS</h1>
-      <p className="text-sm text-neutral-500">
-        Scaffolding complete — Phase 0. Frontend boots.
-      </p>
-    </main>
-  );
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!user) {
+      router.replace('/login');
+    } else {
+      router.replace(user.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
+    }
+  }, [user, isLoading, router]);
+
+  return <div className="min-h-screen bg-parchment" />;
 }
