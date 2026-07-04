@@ -101,36 +101,26 @@ export default function LandingPage() {
   const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [isVisible, setIsVisible] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
+    let prevScroll = window.scrollY;
+
     const handleScroll = () => {
       const currentScroll = window.scrollY;
+      setIsScrolled(currentScroll > 20);
 
-      // Make background sticky & colored after scrolling a tiny bit
-      if (currentScroll > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-
-      // Collapsible logic
       if (currentScroll > 120) {
-        if (currentScroll > lastScrollY) {
-          setIsVisible(false); // Hide on scroll down
-        } else {
-          setIsVisible(true);  // Show on scroll up
-        }
+        setIsVisible(currentScroll < prevScroll);
       } else {
         setIsVisible(true);
       }
 
-      setLastScrollY(currentScroll);
+      prevScroll = currentScroll;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -144,67 +134,71 @@ export default function LandingPage() {
       <div className="pointer-events-none fixed -left-40 -top-40 h-96 w-96 rounded-full bg-periwinkle-mist/50 blur-3xl" />
       <div className="pointer-events-none fixed -bottom-40 -right-40 h-96 w-96 rounded-full bg-mint/20 blur-3xl" />
 
-      {announcementOpen && (
-        <div className="flex w-full items-center justify-center gap-4 bg-off-black px-4 py-2.5 text-center">
-          <p className="text-[13px] text-parchment">
-            New: automatic payroll generation and real-time notifications are live.
-          </p>
-          <Link
-            href="/register"
-            className="rounded-full border border-parchment/40 px-3 py-1 text-[11px] uppercase tracking-tight text-parchment transition-colors hover:bg-parchment hover:text-off-black"
-          >
-            Get started
-          </Link>
-          <button
-            type="button"
-            aria-label="Dismiss announcement"
-            onClick={() => setAnnouncementOpen(false)}
-            className="text-parchment"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
-
       <motion.header
-        initial={{ y: 0 }}
-        animate={{ y: isVisible ? 0 : -80 }}
-        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className={`sticky top-0 z-40 w-full border-b transition-all duration-300 ${
+        animate={{ y: isVisible ? 0 : '-100%' }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className={`fixed top-0 left-0 right-0 z-50 w-full transition-colors duration-300 ${
           isScrolled
-            ? 'border-line/70 bg-surface/90 backdrop-blur-md shadow-sm'
-            : 'border-transparent bg-transparent'
+            ? 'bg-surface/90 backdrop-blur-md shadow-sm'
+            : 'bg-transparent'
         }`}
       >
-        <div className="mx-auto flex h-20 max-w-[var(--page-max-width)] items-center justify-center gap-8 px-6">
-          <Link href="/" className="absolute left-6">
-            <Logo />
-          </Link>
-          <nav className="hidden items-center gap-1 rounded-full border border-line bg-surface/60 p-1 md:flex">
-            {[
-              { href: '#how-it-works', label: 'How it works' },
-              { href: '#why-us', label: 'Why us' },
-              { href: '#faq', label: 'FAQ' },
-            ].map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="rounded-full px-4 py-1.5 text-[13px] font-medium uppercase tracking-tight text-graphite transition-colors hover:bg-off-black/[0.05] hover:text-off-black"
-              >
-                {l.label}
-              </a>
-            ))}
-          </nav>
-          <div className="absolute right-6 flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/login">Login</Link>
-            </Button>
-            <Button asChild variant="default" size="sm">
-              <Link href="/register">Get started ▸</Link>
-            </Button>
+        {announcementOpen && (
+          <div className="flex w-full items-center justify-center gap-4 bg-off-black px-4 py-2.5 text-center">
+            <p className="text-[13px] text-parchment">
+              New: automatic payroll generation and real-time notifications are live.
+            </p>
+            <Link
+              href="/register"
+              className="rounded-full border border-parchment/40 px-3 py-1 text-[11px] uppercase tracking-tight text-parchment transition-colors hover:bg-parchment hover:text-off-black"
+            >
+              Get started
+            </Link>
+            <button
+              type="button"
+              aria-label="Dismiss announcement"
+              onClick={() => setAnnouncementOpen(false)}
+              className="text-parchment"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
+        <div className={`border-b transition-colors duration-300 ${isScrolled ? 'border-line/70' : 'border-transparent'}`}>
+          <div className="mx-auto flex h-20 max-w-[var(--page-max-width)] items-center justify-center gap-8 px-6">
+            <Link href="/" className="absolute left-6">
+              <Logo />
+            </Link>
+            <nav className="hidden items-center gap-1 rounded-full border border-line bg-surface/60 p-1 md:flex">
+              {[
+                { href: '#how-it-works', label: 'How it works' },
+                { href: '#why-us', label: 'Why us' },
+                { href: '#faq', label: 'FAQ' },
+              ].map((l) => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  className="rounded-full px-4 py-1.5 text-[13px] font-medium uppercase tracking-tight text-graphite transition-colors hover:bg-off-black/[0.05] hover:text-off-black"
+                >
+                  {l.label}
+                </a>
+              ))}
+            </nav>
+            <div className="absolute right-6 flex items-center gap-2">
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button asChild variant="default" size="sm">
+                <Link href="/register">Get started ▸</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </motion.header>
+
+      {/* Spacer for fixed header */}
+      <div className={announcementOpen ? 'h-[116px]' : 'h-20'} />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
@@ -348,26 +342,29 @@ export default function LandingPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6 }}
-          className="mb-16 max-w-[640px]"
+          className="mb-16 max-w-[600px]"
         >
-          <span className="inline-block rounded-full bg-lake-blue/10 px-4 py-1.5 text-[12px] font-medium uppercase tracking-[0.08em] text-lake-blue">
-            Why us
-          </span>
-          <h2 className="mt-6 font-serif text-[42px] font-normal leading-[1.15] tracking-[-0.03em] text-off-black sm:text-[52px]">
+          <div className="flex items-center gap-3">
+            <span className="inline-block rounded-full bg-lake-blue/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-lake-blue">
+              Why us
+            </span>
+            <span className="h-px flex-1 max-w-[48px] bg-lake-blue/20" />
+          </div>
+          <h2 className="mt-5 font-serif text-[40px] font-normal leading-[1.12] tracking-[-0.03em] text-off-black sm:text-[50px]">
             Why teams choose this HRMS
           </h2>
-          <p className="mt-4 text-[16px] leading-relaxed text-graphite">
+          <p className="mt-4 text-[15px] leading-[1.75] text-graphite">
             Built with security, speed, and scalability at its core — designed for modern teams.
           </p>
         </motion.div>
 
-        <RevealGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <RevealGroup className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {WHY_CHOOSE.map((f) => (
             <RevealItem key={f.title}>
               <motion.div
-                whileHover={{ y: -6 }}
+                whileHover={{ y: -5 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                className="group relative h-full overflow-hidden rounded-[28px] border border-line bg-surface p-10 shadow-sm transition-all duration-500 hover:border-lake-blue/20 hover:shadow-xl"
+                className="group relative h-full overflow-hidden rounded-[24px] border border-line bg-surface shadow-sm transition-all duration-500 hover:border-lake-blue/20 hover:shadow-lg"
               >
                 <motion.div
                   className={`absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br ${f.tone} blur-3xl`}
@@ -376,18 +373,18 @@ export default function LandingPage() {
                   transition={{ duration: 0.6, ease: 'easeOut' }}
                 />
 
-                <div className="relative z-10">
-                  <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-[18px] bg-gradient-to-br from-off-black/[0.06] to-off-black/[0.02] text-off-black shadow-inner transition-all duration-500 group-hover:from-lake-blue group-hover:to-lake-blue-dark group-hover:text-white group-hover:shadow-lg group-hover:shadow-lake-blue/20">
-                    <f.icon size={26} strokeWidth={2} />
+                <div className="relative z-10 p-9">
+                  <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-[16px] bg-gradient-to-br from-off-black/[0.06] to-off-black/[0.02] text-off-black shadow-inner">
+                    <f.icon size={24} strokeWidth={2} />
                   </div>
 
-                  <h3 className="mb-3 font-serif text-[26px] font-normal leading-tight tracking-tight text-off-black">
+                  <h3 className="mb-3 font-serif text-[24px] font-normal leading-tight tracking-tight text-off-black">
                     {f.title}
                   </h3>
-                  <p className="text-[15px] leading-[1.75] text-graphite">{f.body}</p>
+                  <p className="text-[14px] leading-[1.75] text-graphite">{f.body}</p>
                 </div>
 
-                <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-lake-blue to-transparent transition-all duration-500 group-hover:w-full" />
+                <div className="absolute bottom-0 left-0 h-[3px] w-0 rounded-full bg-gradient-to-r from-lake-blue via-lake-blue/70 to-transparent transition-all duration-500 group-hover:w-full" />
               </motion.div>
             </RevealItem>
           ))}
