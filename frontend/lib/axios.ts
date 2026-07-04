@@ -50,9 +50,9 @@ api.interceptors.response.use(
   (res) => res,
   async (error: AxiosError<ApiErrorBody>) => {
     const original = error.config as RetryableConfig | undefined;
-    const isAuthRoute = original?.url?.startsWith('/auth/');
+    const isRefreshRoute = original?.url === '/auth/refresh';
 
-    if (error.response?.status === 401 && original && !original._retried && !isAuthRoute) {
+    if (error.response?.status === 401 && original && !original._retried && !isRefreshRoute) {
       original._retried = true;
       const token = await refreshAccessToken();
       if (token) {

@@ -30,7 +30,8 @@ export const registerSchema = z
   });
 
 export const loginSchema = z.object({
-  email,
+  // Accepts either an email address or a Login ID like OIJODO20250001
+  email: z.string().trim().min(1, 'Please enter your Login ID or email'),
   password: z.string().min(1, 'Password is required'),
   rememberMe: z.boolean().optional().default(false),
 });

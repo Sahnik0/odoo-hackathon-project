@@ -12,6 +12,7 @@ export async function registerRequest(input: {
   password: string;
   firstName: string;
   lastName: string;
+  companyName?: string;
   phone?: string;
 }) {
   const res = await api.post<ApiSuccess<{ id: string; email: string; message: string }>>(

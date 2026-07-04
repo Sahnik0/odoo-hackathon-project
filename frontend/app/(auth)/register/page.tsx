@@ -50,6 +50,7 @@ export default function RegisterPage() {
         password: values.password,
         firstName: values.firstName,
         lastName: values.lastName,
+        companyName: values.companyName || undefined,
         phone: values.phone || undefined,
       }),
     onSuccess: (data) => setSubmittedEmail(data.email),

@@ -30,6 +30,7 @@ export interface RegisterInput {
   password: string;
   firstName: string;
   lastName: string;
+  companyName?: string;
   phone?: string;
 }
 
@@ -64,6 +65,7 @@ export async function register(input: RegisterInput): Promise<{ id: string; emai
             loginId,
             firstName: input.firstName.trim(),
             lastName: input.lastName.trim(),
+            companyName: input.companyName ? input.companyName.trim() : null,
             phone: input.phone ? input.phone.trim() : null,
             dateOfJoining: now,
             leaveBalances: {
@@ -153,21 +155,37 @@ export interface LoginResult {
   user: { id: string; email: string; role: 'EMPLOYEE' | 'ADMIN' };
 }
 
-/** Login — blocked until email verified (Section 8). Generic credential errors. */
+/** Login — accepts email address OR Login ID (e.g. OIJODO20250001). Blocked until email verified. */
 export async function login(
-  emailRaw: string,
+  emailOrLoginId: string,
   password: string,
   rememberMe: boolean,
   ctx: RefreshContext = {},
 ): Promise<LoginResult> {
-  const email = normalizeEmail(emailRaw);
-  const user = await prisma.user.findFirst({ where: { email, deletedAt: null } });
+  const input = emailOrLoginId.trim();
+  const isEmail = input.includes('@');
+
+  let user;
+  if (isEmail) {
+    const email = input.toLowerCase();
+    user = await prisma.user.findFirst({ where: { email, deletedAt: null } });
+  } else {
+    // Look up by loginId through the profile relation
+    const profile = await prisma.employeeProfile.findFirst({
+      where: { loginId: input.toUpperCase(), deletedAt: null },
+      include: { user: true },
+    });
+    user = profile?.user ?? null;
+  }
 
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
-    throw ApiError.unauthenticated('Invalid email or password');
+    throw ApiError.unauthenticated('Invalid credentials');
   }
   if (!user.emailVerified) {
     throw ApiError.forbidden('Please verify your email before logging in');
+  }
+  if (user.deletedAt) {
+    throw ApiError.unauthenticated('Invalid credentials');
   }
 
   const accessToken = signAccessToken({ sub: user.id, role: user.role, email: user.email });

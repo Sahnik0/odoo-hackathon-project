@@ -109,9 +109,10 @@ model EmployeeProfile {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
 
-  loginId   String @unique // e.g. OIJODO20220001
-  firstName String
-  lastName  String
+  loginId     String @unique // e.g. OIJODO20220001
+  firstName   String
+  lastName    String
+  companyName String? // self-registered company name
 
   // Employee-editable fields (Section 8).
   phone          String?

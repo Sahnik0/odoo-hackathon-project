@@ -19,11 +19,13 @@ export const registerSchema = z.object({
   password,
   firstName: name,
   lastName: name,
+  companyName: z.string().trim().optional(),
   phone: z.string().trim().optional(),
 });
 
 export const loginSchema = z.object({
-  email,
+  // Accepts email address OR Login ID (e.g. OIJODO20250001)
+  email: z.string().trim().min(1, 'Login ID or email is required'),
   password: z.string().min(1, 'Password is required'),
   rememberMe: z.boolean().optional().default(false),
 });

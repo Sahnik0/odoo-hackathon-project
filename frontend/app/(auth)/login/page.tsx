@@ -29,7 +29,7 @@ function FL({ htmlFor, children }: { htmlFor: string; children: React.ReactNode 
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, updateRole } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -46,7 +46,15 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await login(values);
-      router.push('/select-role');
+      // If a role was pre-selected on the verify-email page, apply it right away
+      const pending = sessionStorage.getItem('pendingRole') as 'EMPLOYEE' | 'ADMIN' | null;
+      if (pending === 'EMPLOYEE' || pending === 'ADMIN') {
+        sessionStorage.removeItem('pendingRole');
+        await updateRole(pending);
+        router.push(pending === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
+      } else {
+        router.push('/select-role');
+      }
     } catch (err) {
       toast.error(apiErrorMessage(err));
     } finally {
@@ -77,9 +85,9 @@ export default function LoginPage() {
           <FL htmlFor="email">Login ID or Email</FL>
           <Input
             id="email"
-            type="email"
+            type="text"
             placeholder="OIJODO20250001 or john@company.com"
-            autoComplete="email"
+            autoComplete="username"
             {...register('email')}
             className="h-10"
           />
