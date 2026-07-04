@@ -99,6 +99,38 @@ export default function LandingPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [announcementOpen, setAnnouncementOpen] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScroll = window.scrollY;
+
+      // Make background sticky & colored after scrolling a tiny bit
+      if (currentScroll > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+
+      // Collapsible logic
+      if (currentScroll > 120) {
+        if (currentScroll > lastScrollY) {
+          setIsVisible(false); // Hide on scroll down
+        } else {
+          setIsVisible(true);  // Show on scroll up
+        }
+      } else {
+        setIsVisible(true);
+      }
+
+      setLastScrollY(currentScroll);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -134,7 +166,16 @@ export default function LandingPage() {
         </div>
       )}
 
-      <header className="sticky top-0 z-40 border-b border-line/70 bg-transparent backdrop-blur-md">
+      <motion.header
+        initial={{ y: 0 }}
+        animate={{ y: isVisible ? 0 : -80 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        className={`sticky top-0 z-40 w-full border-b transition-all duration-300 ${
+          isScrolled
+            ? 'border-line/70 bg-surface/90 backdrop-blur-md shadow-sm'
+            : 'border-transparent bg-transparent'
+        }`}
+      >
         <div className="mx-auto flex h-20 max-w-[var(--page-max-width)] items-center justify-center gap-8 px-6">
           <Link href="/" className="absolute left-6">
             <Logo />
@@ -163,7 +204,7 @@ export default function LandingPage() {
             </Button>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
@@ -232,7 +273,7 @@ export default function LandingPage() {
               <Link href="/register">Get started free →</Link>
             </Button>
             <Button asChild variant="ghost" size="lg">
-              <Link href="/login">Sign in</Link>
+              <Link href="/learn-more">Learn more</Link>
             </Button>
           </motion.div>
         </motion.div>
