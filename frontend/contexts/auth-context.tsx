@@ -2,16 +2,15 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { setAccessToken } from '@/lib/token-store';
-import { loginRequest, logoutRequest, refreshSessionRequest } from '@/services/auth.service';
+import { loginRequest, logoutRequest, refreshSessionRequest, setRoleRequest } from '@/services/auth.service';
 import type { AuthUser } from '@/types/auth';
 
 interface AuthContextValue {
   user: AuthUser | null;
-  // true while the initial silent-refresh bootstrap is in flight — gates the
-  // protected layout so it doesn't flash a redirect before we know the answer.
   isLoading: boolean;
   login: (input: { email: string; password: string; rememberMe?: boolean }) => Promise<AuthUser>;
   logout: () => Promise<void>;
+  updateRole: (role: 'EMPLOYEE' | 'ADMIN') => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -20,9 +19,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // On first load the access token only lives in memory, so a hard refresh
-  // always starts with none — silently try the refresh cookie once to
-  // restore the session before deciding whether protected routes redirect.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -32,16 +28,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAccessToken(result.accessToken);
         setUser(result.user);
       } catch {
-        // No valid refresh cookie (never logged in, or it expired/was
-        // revoked) — stay logged out, protected routes will redirect.
         if (!cancelled) setUser(null);
       } finally {
         if (!cancelled) setIsLoading(false);
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   async function login(input: { email: string; password: string; rememberMe?: boolean }) {
@@ -60,8 +52,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function updateRole(role: 'EMPLOYEE' | 'ADMIN') {
+    await setRoleRequest(role);
+    setUser((prev) => prev ? { ...prev, role } : prev);
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, updateRole }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

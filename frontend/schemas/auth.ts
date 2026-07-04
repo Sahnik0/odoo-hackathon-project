@@ -14,12 +14,20 @@ const password = z
 
 const name = z.string().trim().min(1, 'Required').max(50, 'Too long');
 
-export const registerSchema = z.object({
-  email,
-  password,
-  firstName: name,
-  lastName: name,
-});
+export const registerSchema = z
+  .object({
+    companyName: z.string().trim().min(1, 'Company name is required').max(100, 'Too long'),
+    firstName: name,
+    lastName: name,
+    email,
+    phone: z.string().trim().min(10, 'Enter a valid phone number').max(15, 'Too long').optional().or(z.literal('')),
+    password,
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((v) => v.password === v.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
 export const loginSchema = z.object({
   email,

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validate';
+import { authenticate } from '../middleware/authenticate';
 import {
   loginLimiter,
   registerLimiter,
@@ -26,5 +27,8 @@ router.post('/refresh', auth.refresh);
 router.post('/logout', auth.logout);
 router.post('/forgot-password', forgotPasswordLimiter, validate(forgotPasswordSchema), auth.forgotPassword);
 router.post('/reset-password', validate(resetPasswordSchema), auth.resetPassword);
+
+// Authenticated — must have a valid access token
+router.post('/set-role', authenticate, auth.setRole);
 
 export default router;

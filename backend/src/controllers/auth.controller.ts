@@ -36,8 +36,8 @@ export const register = asyncHandler(async (req, res) => {
 });
 
 export const verifyEmail = asyncHandler(async (req, res) => {
-  await authService.verifyEmail(req.body.token);
-  ok(res, { verified: true, message: 'Email verified. You can now log in.' });
+  const result = await authService.verifyEmail(req.body.token);
+  ok(res, { verified: true, loginId: result.loginId, message: 'Email verified. You can now log in with your Login ID.' });
 });
 
 export const resendVerification = asyncHandler(async (req, res) => {
@@ -74,4 +74,14 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 export const resetPassword = asyncHandler(async (req, res) => {
   await authService.resetPassword(req.body.token, req.body.password);
   ok(res, { message: 'Password reset successful. Please log in with your new password.' });
+});
+
+export const setRole = asyncHandler(async (req, res) => {
+  const userId = req.user!.id;
+  const { role } = req.body as { role: 'EMPLOYEE' | 'ADMIN' };
+  if (role !== 'EMPLOYEE' && role !== 'ADMIN') {
+    throw ApiError.badRequest('Invalid role. Must be EMPLOYEE or ADMIN.');
+  }
+  await authService.setRole(userId, role);
+  ok(res, { role, message: 'Role updated successfully.' });
 });

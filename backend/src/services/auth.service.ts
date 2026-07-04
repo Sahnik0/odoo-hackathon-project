@@ -30,6 +30,7 @@ export interface RegisterInput {
   password: string;
   firstName: string;
   lastName: string;
+  phone?: string;
 }
 
 /** Self-registration → always EMPLOYEE (Section 2). Creates user+profile+login ID
@@ -63,6 +64,7 @@ export async function register(input: RegisterInput): Promise<{ id: string; emai
             loginId,
             firstName: input.firstName.trim(),
             lastName: input.lastName.trim(),
+            phone: input.phone ? input.phone.trim() : null,
             dateOfJoining: now,
             leaveBalances: {
               createMany: {
@@ -76,6 +78,7 @@ export async function register(input: RegisterInput): Promise<{ id: string; emai
           },
         },
       },
+      include: { profile: true },
     });
   });
 
@@ -83,10 +86,11 @@ export async function register(input: RegisterInput): Promise<{ id: string; emai
   return { id: user.id, email: user.email };
 }
 
-/** Verify email via token (24h, single-use). Fires EMAIL_VERIFIED notification. */
-export async function verifyEmail(rawToken: string): Promise<void> {
+/** Verify email via token (24h, single-use). Returns loginId so the frontend can display it. */
+export async function verifyEmail(rawToken: string): Promise<{ loginId: string }> {
   const user = await prisma.user.findFirst({
     where: { emailVerifyTokenHash: hashToken(rawToken) },
+    include: { profile: true },
   });
   if (
     !user ||
@@ -115,6 +119,8 @@ export async function verifyEmail(rawToken: string): Promise<void> {
       },
     }),
   ]);
+
+  return { loginId: user.profile?.loginId ?? '' };
 }
 
 /** Resend verification email with a 60s cooldown (Section 2). Generic on unknown /
@@ -232,4 +238,9 @@ export async function resetPassword(rawToken: string, newPassword: string): Prom
     },
   });
   await revokeAllRefreshTokens(user.id);
+}
+
+/** Set role — called once after first login from the role-selection screen. */
+export async function setRole(userId: string, role: 'EMPLOYEE' | 'ADMIN'): Promise<void> {
+  await prisma.user.update({ where: { id: userId }, data: { role } });
 }

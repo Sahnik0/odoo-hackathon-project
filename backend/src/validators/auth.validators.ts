@@ -19,6 +19,7 @@ export const registerSchema = z.object({
   password,
   firstName: name,
   lastName: name,
+  phone: z.string().trim().optional(),
 });
 
 export const loginSchema = z.object({

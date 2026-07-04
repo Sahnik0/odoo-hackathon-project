@@ -12,6 +12,7 @@ export async function registerRequest(input: {
   password: string;
   firstName: string;
   lastName: string;
+  phone?: string;
 }) {
   const res = await api.post<ApiSuccess<{ id: string; email: string; message: string }>>(
     '/auth/register',
@@ -21,7 +22,7 @@ export async function registerRequest(input: {
 }
 
 export async function verifyEmailRequest(token: string) {
-  const res = await api.post<ApiSuccess<{ verified: boolean; message: string }>>('/auth/verify-email', {
+  const res = await api.post<ApiSuccess<{ verified: boolean; loginId: string; message: string }>>('/auth/verify-email', {
     token,
   });
   return res.data.data;
@@ -57,5 +58,10 @@ export async function forgotPasswordRequest(email: string) {
 
 export async function resetPasswordRequest(token: string, password: string) {
   const res = await api.post<ApiSuccess<{ message: string }>>('/auth/reset-password', { token, password });
+  return res.data.data;
+}
+
+export async function setRoleRequest(role: 'EMPLOYEE' | 'ADMIN') {
+  const res = await api.post<ApiSuccess<{ role: string; message: string }>>('/auth/set-role', { role });
   return res.data.data;
 }
