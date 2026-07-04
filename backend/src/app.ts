@@ -9,6 +9,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import healthRoutes from './routes/health';
 import authRoutes from './routes/auth.routes';
 import employeeRoutes from './routes/employee.routes';
+import attendanceRoutes from './routes/attendance.routes';
 
 // Assembles the Express app (no listen — see server.ts). Kept separate so
 // Supertest can import the app without binding a port.
@@ -41,6 +42,7 @@ export function createApp(): Express {
   app.use('/', healthRoutes);
   app.use('/auth', authRoutes);
   app.use('/employees', employeeRoutes);
+  app.use('/attendance', attendanceRoutes);
 
   // 404 + centralized error formatting (must be last).
   app.use(notFoundHandler);
